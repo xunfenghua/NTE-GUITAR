@@ -1,6 +1,6 @@
 # NTE-GUITAR Lite
 
-**Windows 桌面音乐编排与游戏乐器演奏工具** · C# / .NET 8 / WinForms / WebView2
+**异环乐器演奏工具** · C# / .NET 8 / WinForms / WebView2
 
 [English](README.en.md) · [算法与数据流](docs/ALGORITHMS.md) · [构建、运行与模型](docs/BUILD_AND_MODELS.md) · [第三方组件与许可证](docs/THIRD_PARTY.md) · [架构地图](docs/ARCHITECTURE.md)
 
