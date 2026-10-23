@@ -1,0 +1,273 @@
+/* wwwroot/css/tokens.css */
+/* ==========================================================================
+   LIQUID GLASS DESIGN SYSTEM (Dual Theme: Obsidian Dark & Crystal Light)
+   ========================================================================== */
+
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* 1. Obsidian Liquid (偏黑高级感：深邃黑曜石 + 流体极光底色) */
+  --bg: #07080d;
+  --bg-gradient: 
+    radial-gradient(circle at 12% 18%, rgba(99, 102, 241, 0.22) 0%, transparent 42%),
+    radial-gradient(circle at 88% 12%, rgba(168, 85, 247, 0.18) 0%, transparent 45%),
+    radial-gradient(circle at 75% 85%, rgba(16, 185, 129, 0.14) 0%, transparent 50%),
+    radial-gradient(circle at 25% 82%, rgba(56, 189, 248, 0.12) 0%, transparent 45%),
+    linear-gradient(160deg, #06070b 0%, #0d101a 50%, #080910 100%);
+
+  /* Ambient Orbs */
+  --orb-1: rgba(99, 102, 241, 0.32);
+  --orb-2: rgba(236, 72, 153, 0.22);
+  --orb-3: rgba(16, 185, 129, 0.20);
+
+  /* Liquid Glass Surfaces (曲率流光渐变，非普通死板毛玻璃) */
+  --surface: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.095) 0%,
+    rgba(255, 255, 255, 0.035) 45%,
+    rgba(255, 255, 255, 0.015) 100%
+  );
+  --surface-solid: #131622;
+  --surface-2: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.07) 0%,
+    rgba(255, 255, 255, 0.025) 100%
+  );
+  --surface-hover: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.15) 0%,
+    rgba(255, 255, 255, 0.06) 55%,
+    rgba(255, 255, 255, 0.03) 100%
+  );
+  --surface-active: linear-gradient(
+    135deg,
+    rgba(99, 102, 241, 0.28) 0%,
+    rgba(139, 92, 246, 0.12) 100%
+  );
+  --surface-glass: linear-gradient(
+    180deg,
+    rgba(18, 21, 34, 0.72) 0%,
+    rgba(10, 12, 20, 0.86) 100%
+  );
+  --rail-glass: linear-gradient(
+    165deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0.02) 60%,
+    rgba(15, 18, 30, 0.65) 100%
+  );
+
+  /* Liquid Specular Borders & Rim Highlights (核心液态边缘折射高光) */
+  --border: rgba(255, 255, 255, 0.11);
+  --border-light: rgba(255, 255, 255, 0.24);
+  --border-glow: rgba(129, 140, 248, 0.55);
+
+  --liquid-rim: 
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.32),
+    inset 1px 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 -1px 2px 0 rgba(0, 0, 0, 0.55);
+
+  --liquid-rim-hover: 
+    inset 0 1.5px 2px 0 rgba(255, 255, 255, 0.48),
+    inset 1px 0 1.5px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -1px 2px 0 rgba(99, 102, 241, 0.25);
+
+  --liquid-rim-active: 
+    inset 0 1.5px 2px 0 rgba(255, 255, 255, 0.55),
+    inset 0 0 16px rgba(99, 102, 241, 0.28);
+
+  --liquid-filter: blur(18px) saturate(190%) contrast(103%);
+
+  /* Typography */
+  --text: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --muted: #64748b;
+  --on-accent: #ffffff;
+
+  /* Brand & Accents */
+  --accent: #6366f1;
+  --accent-grad: linear-gradient(135deg, #6366f1 0%, #8b5cf6 55%, #ec4899 100%);
+  --accent-hover: #818cf8;
+  --accent-active: #4f46e5;
+  --accent-glow: rgba(99, 102, 241, 0.42);
+  --accent-subtle: rgba(99, 102, 241, 0.16);
+
+  /* Semantic Status */
+  --success: #10b981;
+  --success-bg: rgba(16, 185, 129, 0.15);
+  --warning: #f59e0b;
+  --warning-bg: rgba(245, 158, 11, 0.16);
+  --danger: #f43f5e;
+  --danger-bg: rgba(244, 63, 94, 0.15);
+
+  /* Shadows & Radii */
+  --radius-xs: 8px;
+  --radius-sm: 12px;
+  --radius: 18px;
+  --radius-lg: 24px;
+  --radius-pill: 9999px;
+
+  --shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.65), 0 4px 16px rgba(0, 0, 0, 0.4);
+  --shadow-sm: 0 8px 24px -4px rgba(0, 0, 0, 0.42);
+  --transition: 0.26s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+
+  /* 2. Crystal Pearl (亮的漂亮：极光珍珠白 + 清透水滴折射感) */
+  --bg: #eef4fb;
+  --bg-gradient: 
+    radial-gradient(circle at 10% 15%, rgba(56, 189, 248, 0.32) 0%, transparent 45%),
+    radial-gradient(circle at 88% 15%, rgba(168, 85, 247, 0.24) 0%, transparent 48%),
+    radial-gradient(circle at 80% 85%, rgba(251, 146, 60, 0.20) 0%, transparent 50%),
+    radial-gradient(circle at 18% 82%, rgba(99, 102, 241, 0.22) 0%, transparent 45%),
+    linear-gradient(145deg, #f8fafc 0%, #e2eaf6 55%, #eff6ff 100%);
+
+  /* Ambient Orbs */
+  --orb-1: rgba(56, 189, 248, 0.42);
+  --orb-2: rgba(168, 85, 247, 0.30);
+  --orb-3: rgba(99, 102, 241, 0.28);
+
+  /* Liquid Water-Drop Surfaces (水滴高透亮白渐变) */
+  --surface: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.78) 0%,
+    rgba(255, 255, 255, 0.48) 55%,
+    rgba(255, 255, 255, 0.66) 100%
+  );
+  --surface-solid: #ffffff;
+  --surface-2: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.65) 0%,
+    rgba(241, 245, 249, 0.48) 100%
+  );
+  --surface-hover: linear-gradient(
+    135deg,
+    rgba(238, 242, 255, 0.95) 0%,
+    rgba(224, 231, 255, 0.85) 100%
+  );
+  --surface-active: linear-gradient(
+    135deg,
+    rgba(79, 70, 229, 0.18) 0%,
+    rgba(14, 165, 233, 0.14) 100%
+  );
+  --surface-glass: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.85) 0%,
+    rgba(241, 245, 249, 0.92) 100%
+  );
+  --rail-glass: linear-gradient(
+    165deg,
+    rgba(255, 255, 255, 0.88) 0%,
+    rgba(248, 250, 252, 0.75) 60%,
+    rgba(241, 245, 249, 0.85) 100%
+  );
+
+  /* Liquid Specular Borders & Rim Highlights */
+  --border: rgba(203, 213, 225, 0.70);
+  --border-light: rgba(99, 102, 241, 0.35);
+  --border-glow: rgba(79, 70, 229, 0.25);
+
+  --liquid-rim: 
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.9),
+    0 1px 2px 0 rgba(15, 23, 42, 0.05);
+
+  --liquid-rim-hover: 
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.95),
+    0 2px 8px -1px rgba(79, 70, 229, 0.16);
+
+  --liquid-rim-active: 
+    inset 0 1px 2px 0 rgba(15, 23, 42, 0.08),
+    inset 0 0 8px rgba(79, 70, 229, 0.12);
+
+  --liquid-filter: blur(18px) saturate(210%) brightness(1.03);
+
+  /* Typography */
+  --text: #0f172a;
+  --text-secondary: #334155;
+  --muted: #64748b;
+  --on-accent: #ffffff;
+
+  /* Brand & Accents */
+  --accent: #4f46e5;
+  --accent-grad: linear-gradient(135deg, #4f46e5 0%, #7c3aed 55%, #db2777 100%);
+  --accent-hover: #6366f1;
+  --accent-active: #4338ca;
+  --accent-glow: rgba(79, 70, 229, 0.30);
+  --accent-subtle: rgba(79, 70, 229, 0.12);
+
+  /* Semantic Status */
+  --success: #059669;
+  --success-bg: rgba(5, 150, 105, 0.12);
+  --warning: #d97706;
+  --warning-bg: rgba(217, 119, 6, 0.14);
+  --danger: #e11d48;
+  --danger-bg: rgba(225, 29, 72, 0.12);
+
+  /* Shadows */
+  --shadow: 0 20px 45px -12px rgba(15, 23, 42, 0.12), 0 4px 14px -2px rgba(15, 23, 42, 0.06);
+  --shadow-sm: 0 8px 22px -6px rgba(15, 23, 42, 0.08), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+}
+
+/* ==================== GLOBAL RESET & SCROLLBAR ==================== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--bg);
+  background-image: var(--bg-gradient);
+  color: var(--text);
+  font-family: "Inter", "Segoe UI Variable Display", "Segoe UI", "PingFang SC", "Microsoft YaHei UI", sans-serif;
+  font-size: 13.5px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.35s ease, color 0.25s ease;
+}
+
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Custom Sleek Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.28);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}

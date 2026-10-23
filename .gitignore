@@ -1,68 +1,57 @@
-# Prerequisites
-*.d
+# .NET build output
+**/bin/
+**/obj/
+**/TestResults/
+**/*.user
+**/*.suo
+**/*.pdb
+**/*.cache
+**/*.log
 
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
+# Release and downloaded dependencies
+/dist/
+/Dependencies/*.exe
+*.zip
+*.7z
+*.tar.gz
+*.nupkg
 
-# Precompiled Headers
-*.gch
-*.pch
+# Optional local inference runtime and downloaded model data
+/AudioTranscription/python312/
+/AudioTranscription/python312.zip
+/AudioTranscription/__pycache__/
+**/__pycache__/
+*.py[cod]
+**/models/
+**/jobs/
+**/runtime/
+**/venv/
+**/.venv/
 
-# Linker files
-*.ilk
-
-# Debugger Files
-*.pdb
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-*.so.*
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
-*.exe
-*.out
-*.app
-
-# Build directories
-build/
-Build/
-build-*/
-
-# CMake generated files
-CMakeFiles/
-CMakeCache.txt
-cmake_install.cmake
-Makefile
-install_manifest.txt
-compile_commands.json
-
-# Temporary files
+# Local scratch, editor, and diagnostic output
+/scratch/
+/.vs/
+/.idea/
+/.vscode/
 *.tmp
-*.log
 *.bak
-*.swp
-
-# vcpkg
-vcpkg_installed/
-
-# debug information files
-*.dwo
-
-# test output & cache
-Testing/
-.cache/
+/*.txt
+!/Resources/使用说明.txt
+!/Dependencies/ViGEmBus-LICENSE.txt
+/*.png
+/*.jpg
+/*.jpeg
+/*.webp
+/*.mp4
+dump_docx.ps1
+publish_to_ng.ps1
+diagnose*.txt
+test_diag.txt
+test_results.log
+test-results-*.txt
+transcript_steps_*.txt
+docx_dump.txt
+user_docx.txt
+doc_*.txt
+boot.log
+debug.log

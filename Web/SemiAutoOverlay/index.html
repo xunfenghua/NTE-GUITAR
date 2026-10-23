@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>NTE-GUITAR V3.4 · 半自动吉他</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="../../wwwroot/css/dropdown-menus.css">
+</head>
+<body>
+  <main class="overlay-shell" id="overlay-shell">
+    <div class="window-strip">
+      <span>NTE-GUITAR V3.4</span>
+      <div class="window-actions">
+        <button id="theme-button" class="mini-button" title="切换暗色/亮色主题" aria-label="切换主题">☾</button>
+        <button id="hide-button" class="mini-button close-button" title="隐藏悬浮窗" aria-label="隐藏悬浮窗">×</button>
+      </div>
+    </div>
+
+    <header class="top-panel">
+      <div class="song-row">
+        <div class="song-info">
+          <strong id="track-title" title="尚未载入曲目">尚未载入曲目</strong>
+          <div class="song-time"><span id="elapsed-label">00:00</span><span> / </span><span id="duration-label">00:00</span></div>
+          <div class="song-progress"><i id="song-progress-fill"></i></div>
+        </div>
+        <div class="song-mode-controls">
+          <label class="mode-label">模式
+            <select id="play-mode" aria-label="演奏模式"><option value="rhythm-normal">音游模式</option><option value="simulated">MIDI 跟谱</option><option value="rhythm-hell">地狱模式</option><option value="auto-showcase">锁屏可打</option></select>
+          </label>
+          <button id="library-button" class="library-button" title="从吉他曲库选择曲目">♫ 曲库选曲</button>
+        </div>
+        <div class="primary-actions">
+          <button id="start-button" class="primary">▶ 开始</button>
+          <button id="pause-button">Ⅱ 暂停</button>
+          <button id="reset-button" title="停止并重置本次判定">↺ 重置</button>
+        </div>
+      </div>
+      <div class="control-row">
+        <label>换位
+          <select id="switch-mode" aria-label="练习换位方式"><option value="auto">自动换位</option><option value="manual">手动换位</option></select>
+        </label>
+        <label>输入
+          <select id="execution-mode" title="位置控制方式"><option value="semi-auto">半自动</option><option value="full-manual">全手动</option></select>
+        </label>
+        <label class="speed-control">速度 <b id="speed-value">100%</b>
+          <input id="speed-range" type="range" min="25" max="200" step="5" value="100" aria-label="演奏速度">
+        </label>
+        <button id="lane-key-settings" class="keybind-button" title="自定义七条轨道的按键">改键</button>
+      </div>
+      <div class="control-row auxiliary-row">
+        <label class="opacity-control">透明度 <b id="opacity-value">92%</b>
+          <input id="opacity-range" type="range" min="60" max="100" value="92" aria-label="悬浮窗透明度">
+        </label>
+        <button id="layout-mode" class="layout-button" type="button" aria-pressed="false" title="切换为宽版悬浮窗">宽版</button>
+        <button id="immersion-settings-button" class="layout-button" type="button" title="全沉浸模式设置">沉浸设置</button>
+        <button id="drag-handle" class="drag" title="按住 450ms 后拖动窗口">✥ 移动</button>
+      </div>
+    </header>
+
+    <section class="position-status">
+      <div><small>起始 / 当前轮盘</small><strong id="status-current">P— · S—</strong></div>
+      <span class="status-divider">│</span>
+      <div><small>下一个</small><strong id="status-next">P— · S—</strong></div>
+      <div class="remaining"><small>剩余</small><strong id="status-remain">00:00</strong></div>
+    </section>
+
+    <section class="playfield" id="playfield" aria-label="七轨纵向下落谱面">
+      <canvas id="falling-lanes" aria-label="七轨按键跟随用户键位设置"></canvas>
+      <div class="empty-state" id="empty-state"><strong>等待载入琴谱</strong><span>选择吉他曲目后显示七轨下落谱面</span></div>
+      <div class="countdown-overlay" id="countdown-overlay" hidden aria-live="assertive"><strong id="countdown-number">3</strong><span>准备开始</span></div>
+      <div class="status-line" id="status-line" aria-live="polite">就绪</div>
+    </section>
+
+    <section class="key-feedback" aria-label="按键反馈">
+      <div class="keybar" id="keybar">
+        <span data-lane="1">1</span><span data-lane="2">2</span><span data-lane="3">3</span><span data-lane="4">4</span><span data-lane="5">5</span><span data-lane="6">6</span><span data-lane="7">J</span>
+      </div>
+    </section>
+
+    <footer class="bottom-bar">
+      <div class="timeline"><span id="timeline-current">00:00</span><input id="timeline-seek" type="range" min="0" max="1000" step="1" value="0" aria-label="谱面进度"><span id="timeline-total">00:00</span></div>
+      <div class="stats-row">
+        <span id="session-message">跟随练习时间轴输入</span>
+      </div>
+    </footer>
+
+    <div class="lane-key-picker" id="lane-key-picker" hidden>
+      <section class="lane-key-dialog" role="dialog" aria-modal="true" aria-labelledby="lane-key-title">
+        <header class="library-dialog-header">
+          <div><strong id="lane-key-title">七轨键位</strong><small>点击轨道后按下要绑定的键，Esc 取消</small></div>
+          <button id="lane-key-close" class="mini-button" aria-label="关闭键位设置">×</button>
+        </header>
+        <div class="lane-key-list">
+          <div><span>轨道 1</span><kbd id="lane-key-1">1</kbd><button data-capture-lane="1">更改</button></div>
+          <div><span>轨道 2</span><kbd id="lane-key-2">2</kbd><button data-capture-lane="2">更改</button></div>
+          <div><span>轨道 3</span><kbd id="lane-key-3">3</kbd><button data-capture-lane="3">更改</button></div>
+          <div><span>轨道 4</span><kbd id="lane-key-4">4</kbd><button data-capture-lane="4">更改</button></div>
+          <div><span>轨道 5</span><kbd id="lane-key-5">5</kbd><button data-capture-lane="5">更改</button></div>
+          <div><span>轨道 6</span><kbd id="lane-key-6">6</kbd><button data-capture-lane="6">更改</button></div>
+          <div><span>换位轨道</span><kbd id="lane-key-7">J</kbd><button data-capture-lane="7">更改</button></div>
+        </div>
+        <div id="lane-key-status" class="lane-key-status" aria-live="polite">默认键位：1 2 3 4 5 6 J</div>
+        <footer class="lane-key-actions"><button id="lane-key-reset">恢复默认</button></footer>
+      </section>
+    </div>
+
+    <div class="immersion-picker" id="immersion-picker" hidden>
+      <section class="immersion-dialog" id="immersion-dialog" role="dialog" aria-modal="true" aria-labelledby="immersion-title" tabindex="-1">
+        <header class="library-dialog-header">
+          <div><strong id="immersion-title">全沉浸模式</strong><small>只显示谱面与七轨键位；快捷键按键会正常传给游戏</small></div>
+          <button id="immersion-close" class="mini-button" aria-label="关闭全沉浸设置">×</button>
+        </header>
+        <label class="immersion-auto-setting"><input id="immersion-auto" type="checkbox"><span>开始演奏后自动进入，暂停或结束后退出</span></label>
+        <div class="immersion-hotkey-row"><span>切换快捷键</span><kbd id="immersion-hotkey-label">I</kbd><button id="immersion-hotkey-capture" type="button">更改</button></div>
+        <div id="immersion-hotkey-status" class="immersion-status" aria-live="polite">支持字母、数字、F1–F24 和标点键；Esc 取消</div>
+      </section>
+    </div>
+
+    <div class="start-page-picker" id="start-page-picker" hidden>
+      <section class="start-page-dialog" role="dialog" aria-modal="true" aria-labelledby="start-page-title">
+        <header class="library-dialog-header">
+          <div><strong id="start-page-title">确认游戏当前页</strong><small>程序会从此页自动翻到曲谱起始位置</small></div>
+        </header>
+        <label class="start-page-select-label" for="start-page-select">当前所在页</label>
+        <select id="start-page-select" aria-label="游戏当前所在页">
+          <option value="1">P1</option><option value="2">P2</option><option value="3">P3</option><option value="4">P4</option><option value="5">P5</option>
+        </select>
+        <footer class="start-page-actions"><button id="start-page-cancel" type="button">取消</button><button id="start-page-confirm" class="primary" type="button">确认并开始</button></footer>
+      </section>
+    </div>
+
+    <div class="library-picker" id="library-picker" hidden>
+      <section class="library-dialog" role="dialog" aria-modal="true" aria-labelledby="library-title">
+        <header class="library-dialog-header">
+          <div><strong id="library-title">选择吉他曲目</strong><small id="library-count">正在读取曲目…</small></div>
+          <button id="library-close" class="mini-button" aria-label="关闭曲库选择">×</button>
+        </header>
+        <div class="library-tabs" role="tablist" aria-label="选曲来源">
+          <button id="library-tab-local" class="library-tab active" role="tab" aria-selected="true">本地选取</button>
+          <button id="library-tab-recommended" class="library-tab" role="tab" aria-selected="false">推荐谱</button>
+        </div>
+        <label class="library-search-label" id="library-search-label" for="library-search">搜索本地吉他曲目</label>
+        <input id="library-search" class="library-search" type="search" placeholder="输入曲名搜索" autocomplete="off">
+        <div class="library-results" id="library-results" role="listbox" aria-label="吉他曲目列表"></div>
+        <div class="library-empty" id="library-empty">曲库中没有匹配的吉他曲目</div>
+        <div class="library-status" id="library-status" aria-live="polite">只显示吉他曲目</div>
+      </section>
+    </div>
+  </main>
+  <script src="../../wwwroot/js/dropdown-menus.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <ApplicationIcon>app.ico</ApplicationIcon>
+    <AssemblyName>NTE-GUITAR</AssemblyName>
+    <Product>NTE-GUITAR</Product>
+    <Title>NTE-GUITAR</Title>
+    <Version>3.4.0</Version>
+    <AssemblyVersion>3.4.0.0</AssemblyVersion>
+    <FileVersion>3.4.0.0</FileVersion>
+    <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
+    <StartupObject>MidiAutoPlayer.Program</StartupObject>
+    <NoWarn>$(NoWarn);MSB3277</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(ClientReportedVersion)' != ''">
+    <AssemblyMetadata Include="ClientReportedVersion" Value="$(ClientReportedVersion)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="scratch\**" />
+    <Compile Remove="AnnouncementServer\**" />
+    <Compile Remove="dist\**" />
+  </ItemGroup>
+
+  <ItemGroup Condition="Exists('AudioTranscription\python312.zip') and '$(EmbedAudioRuntime)' != 'false'">
+    <EmbeddedResource Include="AudioTranscription\python312.zip" LogicalName="AudioTranscription.python312.zip" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="app.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="wwwroot\**" Exclude="wwwroot\assets\easter_egg.mp4">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="Web\SemiAutoOverlay\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="AudioTranscription\**" Exclude="AudioTranscription\python312\**;AudioTranscription\python312.zip">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="谱子\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="AudioTranscription\worker.py" LogicalName="AudioTranscription.worker.py" />
+    <EmbeddedResource Include="AudioTranscription\bootstrap.py" LogicalName="AudioTranscription.bootstrap.py" />
+    <EmbeddedResource Include="AudioTranscription\downloads.json" LogicalName="AudioTranscription.downloads.json" />
+    <EmbeddedResource Include="AudioTranscription\requirements.txt" LogicalName="AudioTranscription.requirements.txt" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(EmbeddedFfmpegPath)' != '' and Exists('$(EmbeddedFfmpegPath)')">
+    <EmbeddedResource Include="$(EmbeddedFfmpegPath)" LogicalName="AudioTranscription.ffmpeg.exe" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="wwwroot\**" Exclude="wwwroot\assets\easter_egg.mp4" LogicalName="wwwroot\%(RecursiveDir)%(Filename)%(Extension)" />
+    <EmbeddedResource Include="Web\SemiAutoOverlay\**" LogicalName="Web/SemiAutoOverlay/%(RecursiveDir)%(Filename)%(Extension)" />
+    <EmbeddedResource Include="谱子\**" LogicalName="scores\%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AlphaTab" Version="1.8.4" />
+    <PackageReference Include="Melanchall.DryWetMidi" Version="8.0.3" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4258.31" />
+    <PackageReference Include="Nefarius.ViGEm.Client" Version="1.21.256" />
+  </ItemGroup>
+
+</Project>

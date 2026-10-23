@@ -1,0 +1,93 @@
+
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>推荐谱管理</title>
+<style>body{font:16px system-ui;max-width:760px;margin:2rem auto;padding:0 1rem;color:#222}label{display:block;margin:.8rem 0}input,select,button{font:inherit;padding:.5rem;max-width:100%}input[type=text],input[type=password]{width:24rem}button{cursor:pointer}li{margin:.5rem 0}.danger{margin-left:.5rem}#status{white-space:pre-wrap}.presence{padding:1rem;margin:1rem 0;border:1px solid #ccc;border-radius:.6rem}.presence ul{margin:.5rem 0}</style>
+<h1>推荐谱管理</h1><p>管理令牌通过服务端环境变量 NTE_GUITAR_ADMIN_TOKEN 设置。</p><label>管理令牌 <input id="token" type="password" autocomplete="current-password"></label>
+<section class="presence" aria-live="polite"><h2>客户端版本在线数</h2><div id="presence-status">等待统计数据…</div><ul id="presence-versions"></ul><small id="presence-updated"></small></section>
+<form id="form"><label>ID（留空自动生成；填写已有 ID 可更新） <input name="id" maxlength="80"></label><label>曲名 <input name="title" required maxlength="160"></label><label>艺术家 <input name="artist" maxlength="160"></label><label>乐器 <select name="instrument"><option value="keyboard">键盘谱 / 36 键脚本</option><option value="piano">Piano / 游戏钢琴</option><option value="guitar">吉他谱 / 音游或吉他脚本</option></select></label><label>难度等级 <select name="difficultyLevel"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option></select></label><label>难度标签（可选） <input name="difficultyLabel" maxlength="40" placeholder="留空显示等级"></label><label>MIDI 文件 <input name="midi" type="file" accept=".mid,.midi,audio/midi" required></label><button>上传并发布</button></form><p id="status"></p><h2>待审核投稿</h2><ul id="pending"></ul><audio id="preview" controls hidden></audio><h2>已发布曲目</h2><ul id="items"></ul>
+<script>
+const token = document.querySelector('#token');
+const status = document.querySelector('#status');
+const presenceStatus = document.querySelector('#presence-status');
+const presenceVersions = document.querySelector('#presence-versions');
+const presenceUpdated = document.querySelector('#presence-updated');
+let presenceRequestPending = false;
+token.value = sessionStorage.getItem('admin-token') || '';
+token.onchange = () => { sessionStorage.setItem('admin-token', token.value); load(); loadPresence(); };
+async function req(url, opt = {}) {
+  opt.headers = { ...(opt.headers || {}), 'X-Admin-Token': token.value };
+  const response = await fetch(url, opt);
+  if (!response.ok) throw Error(await response.text() || response.status);
+  return response.status === 204 ? null : response.json();
+}
+async function loadPublished() {
+  const response = await fetch('/api/recommendations');
+  if (!response.ok) throw Error(response.status);
+  const data = await response.json();
+  const list = document.querySelector('#items'); list.replaceChildren();
+  for (const item of data.items) {
+    const row = document.createElement('li');
+    row.textContent = `${item.title} — ${item.artist} [${item.difficultyLabel || item.difficultyLevel}] (${item.id}) `;
+    const remove = document.createElement('button'); remove.className = 'danger'; remove.textContent = '删除';
+    remove.onclick = async () => { if (!confirm('删除此推荐谱？')) return; try { await req('/api/admin/recommendations/' + encodeURIComponent(item.id), { method: 'DELETE' }); await load(); } catch (error) { status.textContent = error.message; } };
+    row.append(remove); list.append(row);
+  }
+}
+async function loadPending() {
+  const data = await req('/api/admin/submissions');
+  const list = document.querySelector('#pending'); list.replaceChildren();
+  for (const item of data.items) {
+    const row = document.createElement('li');
+    row.append(document.createTextNode(`${item.title} — 投稿者：${item.uploaderName} — ${item.instrument} — ${item.difficultyLabel || item.difficultyLevel}级 `));
+    const preview = document.createElement('button'); preview.textContent = '试听 MIDI';
+    preview.onclick = async () => { try { const response = await fetch(item.midiUrl, { headers: { 'X-Admin-Token': token.value } }); if (!response.ok) throw Error(response.status); const audio = document.querySelector('#preview'); audio.src = URL.createObjectURL(await response.blob()); audio.hidden = false; await audio.play(); } catch (error) { status.textContent = error.message; } };
+    const approve = document.createElement('button'); approve.textContent = '通过并发布';
+    approve.onclick = async () => { try { await req('/api/admin/submissions/' + encodeURIComponent(item.id) + '/approve', { method: 'POST' }); status.textContent = `已发布：${item.title}`; await load(); } catch (error) { status.textContent = error.message; } };
+    const reject = document.createElement('button'); reject.className = 'danger'; reject.textContent = '拒绝';
+    reject.onclick = async () => { if (!confirm(`拒绝并删除投稿“${item.title}”？`)) return; try { await req('/api/admin/submissions/' + encodeURIComponent(item.id), { method: 'DELETE' }); await load(); } catch (error) { status.textContent = error.message; } };
+    row.append(preview, approve, reject); list.append(row);
+  }
+}
+async function load() { try { await loadPending(); await loadPublished(); } catch (error) { status.textContent = error.message; } }
+async function loadPresence() {
+  if (presenceRequestPending) return;
+  if (!token.value) {
+    presenceStatus.textContent = '输入管理员令牌后查看';
+    presenceVersions.replaceChildren();
+    presenceUpdated.textContent = '';
+    return;
+  }
+  presenceRequestPending = true;
+  try {
+    const data = await req('/api/admin/client-presence');
+    presenceVersions.replaceChildren();
+    if (!data.versions.length) {
+      presenceStatus.textContent = '当前没有活跃客户端';
+    } else {
+      presenceStatus.textContent = '';
+      for (const item of data.versions) {
+        const row = document.createElement('li');
+        row.textContent = item.version + '：' + item.activeInstances + ' 个实例';
+        presenceVersions.append(row);
+      }
+    }
+    const updated = new Date(data.generatedAtUtc);
+    presenceUpdated.textContent = Number.isNaN(updated.getTime()) ? '' : '统计时间：' + updated.toLocaleString();
+  } catch (error) {
+    presenceStatus.textContent = '统计读取失败：' + error.message;
+  } finally {
+    presenceRequestPending = false;
+  }
+}
+document.querySelector('#form').onsubmit = async event => {
+  event.preventDefault(); status.textContent = '上传中…';
+  try { await req('/api/admin/recommendations', { method: 'POST', body: new FormData(event.target) }); status.textContent = '已发布'; event.target.reset(); await load(); }
+  catch (error) { status.textContent = error.message; }
+};
+load();
+loadPresence();
+setInterval(loadPresence, 30000);
+</script></html>
+
+
+
+

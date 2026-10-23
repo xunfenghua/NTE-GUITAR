@@ -1,0 +1,11 @@
+# SheetSage2 pinned revision 398b22834dac7dd05e09b9c4e40a39fc479ec502.
+# PyTorch wheels are installed separately by bootstrap.py for CPU or CUDA.
+transformers==4.45.2
+huggingface-hub==0.36.0
+safetensors==0.5.3
+numpy==1.26.4
+scipy==1.13.1
+mir_eval==0.8.2
+pretty_midi==0.2.10
+mido==1.3.3
+setuptools==78.1.1

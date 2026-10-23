@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NTE-GUITAR V3.4</title>
+  <link rel="icon" type="image/png" href="assets/logo.png">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/pages.css">
+  <link rel="stylesheet" href="css/dropdown-menus.css">
+</head>
+<body>
+  <div id="wallpaper-layer" aria-hidden="true" hidden>
+    <img id="wallpaper-active-image" alt="">
+    <video id="wallpaper-active-video" muted loop playsinline autoplay></video>
+  </div>
+  <div id="app">
+    <!-- 1. Left Navigation Rail (Liquid Glass Dock) -->
+    <nav class="nav-rail">
+      <div class="brand-card">
+        <div class="brand-icon">
+          <img src="assets/logo.png" alt="NTE Logo" class="brand-logo-img">
+        </div>
+        <div class="brand-text">
+          <h1>NTE-GUITAR <span class="brand-badge" id="app-version-badge" title="NTE-GUITAR V3.4" style="user-select: none;">V3.4</span></h1>
+        </div>
+      </div>
+
+      <div class="nav-menu">
+        <button class="nav-item active" data-page="library">
+          <span class="icon">📁</span>
+          <span class="nav-text">本地曲库</span>
+        </button>
+        <button class="nav-item" data-page="audio-transcription">
+          <span class="icon">♫</span>
+          <span class="nav-text">音频转谱</span>
+        </button>
+        <button class="nav-item" data-page="midi-editor">
+          <span class="icon">🎹</span>
+          <span class="nav-text">MIDI 编辑</span>
+        </button>
+        <button class="nav-item" data-page="recommended-scores">
+          <span class="icon">✨</span>
+          <span class="nav-text">推荐谱</span>
+        </button>
+        <button class="nav-item" data-page="gtp">
+          <span class="icon">🎼</span>
+          <span class="nav-text">GTP转换</span>
+        </button>
+        <button class="nav-item" data-page="performance">
+          <span class="icon">🎛️</span>
+          <span class="nav-text">演奏设置</span>
+        </button>
+        <button class="nav-item" data-page="game-piano">
+          <span class="icon">🎹</span>
+          <span class="nav-text">游戏钢琴</span>
+        </button>
+        <button class="nav-item" data-page="simulator">
+          <span class="icon">🎸</span>
+          <span class="nav-text">吉他模拟</span>
+        </button>
+        <button class="nav-item" data-page="calibration">
+          <span class="icon">🎯</span>
+          <span class="nav-text">游戏校准</span>
+        </button>
+        <button class="nav-item" data-page="tutorial">
+          <span class="icon">📖</span>
+          <span class="nav-text">新手教程</span>
+        </button>
+        <button class="nav-item" data-page="settings">
+          <span class="icon">⚙️</span>
+          <span class="nav-text">设置</span>
+        </button>
+      </div>
+
+      <div class="nav-bottom-status">
+        <span class="badge-dot" style="background: var(--success); box-shadow: 0 0 8px var(--success);"></span>
+        <span>游戏前台保护: 已启用</span>
+      </div>
+    </nav>
+
+    <!-- 2. Main Content Stage -->
+    <main class="main-stage">
+      <header class="stage-header">
+        <div class="stage-title">
+          <span id="header-title">本地曲库</span>
+        </div>
+        <div class="header-controls">
+          <button class="theme-switch-btn" id="btn-semiauto-overlay" title="打开/隐藏半自动吉他琴谱悬浮窗 (快捷键 F9)">
+            <span>🎸 半自动悬浮窗 (F9)</span>
+          </button>
+          <button class="theme-switch-btn" id="btn-win-topmost" aria-pressed="false" title="切换程序置顶 (始终浮于顶层且不抢占游戏焦点)">
+            <span id="win-topmost-label">程序置顶: 关</span>
+          </button>
+          <button class="theme-switch-btn" id="btn-win-sizelock" aria-pressed="false" title="切换固定窗口尺寸 / 自由拖拽调整">
+            <span id="win-sizelock-icon">⤢</span>
+            <span id="win-sizelock-label">自由尺寸</span>
+          </button>
+          <button class="theme-switch-btn" id="btn-win-reset-size" title="一键设置到推荐分辨率 (1080 × 700)">
+            <span id="win-reset-size-label">推荐分辨率</span>
+          </button>
+          <button class="theme-switch-btn" id="btn-theme-toggle" title="切换深色/亮色液态玻璃主题">
+            <span id="theme-toggle-icon">🌙</span>
+            <span id="theme-toggle-label">黑曜液态</span>
+          </button>
+          <button class="btn btn-icon" id="btn-win-minimize" title="最小化">─</button>
+          <button class="btn btn-icon btn-danger" id="btn-win-close" title="退出程序">✕</button>
+        </div>
+      </header>
+
+      <section id="page-audio-transcription" class="page-container">
+        <header class="piano-page-header">
+          <div class="piano-brand-mark" aria-hidden="true">♫</div>
+          <div class="piano-heading-copy"><div class="eyebrow">LOCAL AUDIO TO MIDI</div><h2>音频转谱</h2><p>在本机提取歌曲主旋律并保存到所选曲库；转换后留在此页面，按需打开 MIDI 编辑。</p></div>
+        </header>
+        <section class="glass-card audio-runtime-card" aria-label="本地转谱环境">
+          <div class="piano-editor-heading"><div><strong>本地运行环境</strong><p id="transcription-runtime-summary">正在检查 Python、ffmpeg、CUDA 和模型状态…</p></div><div class="piano-editor-actions"><button class="btn btn-secondary btn-sm" id="btn-transcription-inspect" type="button">重新检查</button><button class="btn btn-secondary btn-sm" id="btn-transcription-use-cpu" type="button" hidden>切回 CPU</button><button class="btn btn-secondary btn-sm" id="btn-transcription-install-cuda" type="button" hidden>下载 CUDA 推理</button><button class="btn btn-primary btn-sm" id="btn-transcription-prepare" type="button">初始化环境</button></div></div>
+          <div id="transcription-runtime-items" class="audio-runtime-items" aria-live="polite"></div>
+          <div id="transcription-prepare-panel" class="audio-prepare-panel" hidden>
+            <div class="audio-phase-line"><strong id="transcription-prepare-stage">准备环境</strong><span id="transcription-prepare-activity">等待开始</span><button class="btn btn-secondary btn-sm" id="btn-transcription-prepare-cancel" type="button">取消准备</button></div>
+            <p id="transcription-prepare-message" aria-live="polite">等待开始</p>
+            <div class="transcription-progress-row"><div id="transcription-prepare-progress" class="transcription-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuetext="处理中，暂无百分比" data-indeterminate="true"><span id="transcription-prepare-progress-fill"></span></div><strong id="transcription-prepare-progress-percent" class="transcription-progress-percent">准备中</strong></div>
+            <details class="transcription-diagnostics"><summary>准备日志与诊断</summary><pre id="transcription-prepare-log"></pre></details>
+          </div>
+          <p class="piano-transcription-license">模型与 MERT 基座采用 CC BY-NC 4.0，仅限非商业用途。模型只按用户确认下载到本机，来源与许可信息可在下方查看。</p>
+        </section>
+        <div id="audio-cuda-confirm" class="audio-confirm-backdrop" hidden>
+          <section class="audio-confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="audio-cuda-confirm-title">
+            <h3 id="audio-cuda-confirm-title">确认下载 CUDA 推理环境</h3>
+            <p>将单独下载 PyTorch CUDA 运行环境并保留现有 CPU 环境。下载约 3.5 GB，安装需要约 6 GB 可用空间。</p>
+            <ul><li id="audio-cuda-confirm-index">正在检查兼容的 CUDA 版本…</li><li>保存位置：%LocalAppData%\NTE-GUITAR\audio-transcription\runtime\python312-cuda</li><li>下载源：PyTorch 官方 CUDA wheel 索引</li></ul>
+            <p class="audio-confirm-license">确认后才会开始下载。安装期间可查看实时日志并取消；成功后会切换为 GPU 推理。</p>
+            <div class="piano-editor-actions"><button class="btn btn-secondary" id="audio-cuda-confirm-cancel" type="button">取消</button><button class="btn btn-primary" id="audio-cuda-confirm-continue" type="button">确认下载并安装</button></div>
+          </section>
+        </div>
+        <div id="audio-preparation-confirm" class="audio-confirm-backdrop" hidden>
+          <section class="audio-confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="audio-confirm-title">
+            <h3 id="audio-confirm-title">确认准备本地环境</h3><p>只会安装或下载缺失项目。确认后才会开始网络传输。</p>
+            <ul id="audio-confirm-items"></ul>
+            <p class="audio-confirm-license">模型：Hugging Face <code>m-a-p/SheetSage2</code> 与 <code>m-a-p/MERT-v2-FullSong</code>，固定 revision 和 SHA-256。许可：CC BY-NC 4.0，仅限非商业用途。音频不上传。</p>
+            <label class="audio-license-check"><input id="audio-confirm-license-check" type="checkbox">我已了解模型许可与本地资源占用</label>
+            <div class="piano-editor-actions"><button class="btn btn-secondary" id="audio-confirm-cancel" type="button">取消</button><button class="btn btn-primary" id="audio-confirm-continue" type="button" disabled>确认并准备</button></div>
+          </section>
+        </div>
+        <section class="glass-card audio-transcription-workspace">
+          <div class="audio-transcription-intro"><div><h3>提取主旋律</h3><p>支持 WAV、MP3、FLAC、M4A、OGG、AAC。音频不会上传。</p></div><button class="btn btn-primary" type="button" id="btn-audio-transcription-select">选择音频</button></div>
+          <section class="piano-transcription-panel" id="piano-transcription-panel" aria-label="歌曲转 MIDI 进度" hidden>
+        <div class="piano-transcription-head">
+          <strong id="piano-transcription-title">准备歌曲转谱</strong>
+          <span class="transcription-activity" id="piano-transcription-activity" aria-live="polite"></span>
+          <button type="button" class="btn btn-secondary btn-sm" id="btn-transcription-cancel">取消</button>
+        </div>
+        <div class="audio-phase-line" aria-live="polite"><strong id="transcription-step-label">第 0 / 5 步</strong><span id="transcription-device-label">等待选择音频</span></div>
+        <p id="piano-transcription-message" role="status" aria-live="polite">首次使用会准备本地转谱环境和模型。</p>
+        <div class="transcription-options" id="piano-transcription-options" hidden>
+          <span class="transcription-options-label">输出主旋律</span>
+          <label><input id="transcription-include-vocal" type="checkbox" checked>人声主旋律</label>
+          <label><input id="transcription-include-instrumental" type="checkbox">器乐主旋律</label>
+          <span class="transcription-options-hint">可同时选择；合并时会放在同一 MIDI 的不同音轨。</span>
+          <label class="transcription-target-label" for="transcription-target-instrument">加入本地曲库</label>
+          <select id="transcription-target-instrument" aria-label="转谱结果加入的曲库分类">
+            <option value="2" selected>Piano</option>
+            <option value="0">键盘谱</option>
+            <option value="1">吉他谱</option>
+          </select>
+          <button class="btn btn-primary btn-sm" type="button" id="btn-transcription-start">开始转换</button>
+        </div>
+        <div class="transcription-progress-row"><div id="piano-transcription-progress" class="transcription-progress" role="progressbar" aria-label="歌曲转 MIDI 进度" aria-valuemin="0" aria-valuemax="100" aria-valuetext="等待开始" data-indeterminate="true"><span id="piano-transcription-progress-fill"></span></div><strong id="piano-transcription-progress-percent" class="transcription-progress-percent">等待开始</strong></div>
+        <details class="transcription-diagnostics transcription-live-log" id="piano-transcription-live-log" open>
+          <summary>运行日志 <span id="piano-transcription-log-count">0 条</span></summary>
+          <pre id="piano-transcription-live-log-text" aria-live="polite">选择音频并开始转换后，会在这里显示实时步骤和窗口进度。</pre>
+        </details>
+        <details class="transcription-diagnostics" id="piano-transcription-diagnostics" hidden>
+          <summary>查看安装/转写诊断</summary>
+          <pre id="piano-transcription-diagnostics-text"></pre>
+        </details>
+            <div class="piano-transcription-license">模型默认读取 EXE 同级的 Models 目录；也可手动指定模型目录。</div>
+            <button class="btn btn-secondary btn-sm" type="button" id="btn-transcription-model-path">指定模型目录</button>
+          </section>
+        </section>
+      </section>
+
+      <!-- PAGE: MIDI EDITOR -->
+      <section id="page-midi-editor" class="page-container">
+        <header class="piano-page-header">
+          <div class="piano-brand-mark" aria-hidden="true">♫</div>
+          <div class="piano-heading-copy"><div class="eyebrow">MIDI EDITOR</div><h2>MIDI 编辑</h2><p>选择任意模式的曲目，编辑音符与 BPM；保存时可覆盖原曲或导出 MIDI。</p></div>
+        </header>
+        <section class="glass-card midi-editor-library-picker" aria-label="选择要编辑的 MIDI 曲目">
+          <label for="midi-editor-mode-filter">模式</label>
+          <select id="midi-editor-mode-filter" class="input-text" aria-label="按曲库模式筛选歌曲">
+            <option value="all">全部模式</option><option value="keyboard">键盘谱</option><option value="guitar">吉他谱</option><option value="piano">Piano</option>
+          </select>
+          <label for="midi-editor-song">歌曲</label>
+          <select id="midi-editor-song" class="input-text midi-editor-song-select" aria-label="选择要编辑的歌曲"><option value="">请选择曲目</option></select>
+          <button class="btn btn-secondary" id="btn-midi-editor-open-local" type="button">打开本地 MIDI</button>
+        </section>
+        <p class="midi-editor-empty-state" id="midi-editor-empty-state">从曲库选择歌曲，或打开本地 MIDI 开始编辑。</p>
+          <section class="piano-editor-panel glass-card" id="piano-editor-panel" aria-label="MIDI 钢琴卷帘编辑器" hidden>
+            <div class="piano-editor-heading">
+              <div class="piano-editor-title"><span class="piano-control-icon">♫</span><div><strong id="midi-editor-name">MIDI 编辑器</strong><span id="midi-editor-dirty" class="midi-editor-dirty">已保存</span></div></div>
+              <div class="piano-editor-actions">
+                <button class="btn btn-secondary btn-sm" type="button" id="midi-editor-preview" title="试听/停止 (Space)">试听</button>
+                <button class="btn btn-secondary btn-sm" type="button" id="midi-editor-undo" title="撤销 (Ctrl+Z)">撤销</button>
+                <button class="btn btn-secondary btn-sm" type="button" id="midi-editor-redo" title="重做 (Ctrl+Y)">重做</button>
+                <button class="btn btn-secondary btn-sm" type="button" id="midi-editor-export">导出 MIDI</button>
+                <button class="btn btn-primary btn-sm" type="button" id="midi-editor-save">保存到曲库</button>
+                <button class="btn btn-secondary btn-sm" type="button" id="midi-editor-fullscreen" aria-label="钢琴卷帘全屏显示" aria-pressed="false">全屏</button>
+                <button class="btn btn-secondary btn-sm" type="button" id="midi-editor-close" aria-label="关闭编辑器">关闭</button>
+              </div>
+            </div>
+            <div class="midi-editor-toolbar">
+              <label>旋律来源 <select id="midi-editor-source" aria-label="选择旋律来源"></select></label>
+              <label class="midi-editor-bpm-label" for="midi-editor-bpm">BPM <input id="midi-editor-bpm" type="number" min="20" max="300" step="1" value="120" inputmode="numeric" aria-label="MIDI 节拍速度 BPM"></label>
+              <label>音轨 <select id="midi-editor-track" aria-label="筛选音轨"><option value="all">全部音轨</option></select></label>
+              <label>吸附 <select id="midi-editor-snap" aria-label="时间吸附"><option value="0">关闭</option><option value="0.5">1/2 拍</option><option value="0.25" selected>1/4 拍</option><option value="0.125">1/8 拍</option><option value="0.0625">1/16 拍</option></select></label>
+              <div class="midi-editor-zoom"><span>时间缩放</span><input id="midi-editor-time-zoom" type="range" min="20" max="180" value="70" aria-label="时间缩放"><button class="btn btn-secondary btn-sm" type="button" id="midi-editor-zoom-out" aria-label="缩小">−</button><button class="btn btn-secondary btn-sm" type="button" id="midi-editor-zoom-in" aria-label="放大">＋</button></div>
+              <div class="midi-editor-nav"><button class="btn btn-secondary btn-sm" type="button" id="midi-editor-prev" title="前移视图 (←)">← 前移</button><button class="btn btn-secondary btn-sm" type="button" id="midi-editor-next" title="后移视图 (→)">后移 →</button><span id="midi-editor-range">←/→ 移动视图 · Shift+←/→ 试听快退/快进 5 秒 · 滚轮移动 · Shift+滚轮调音高</span></div>
+            </div>
+              <div class="midi-editor-canvas-wrap" id="midi-editor-canvas-wrap" aria-label="可编辑钢琴卷帘；拖动上方时间刻度可定位试听位置"><canvas id="midi-editor-canvas"></canvas></div>
+            <div class="midi-editor-transport" id="midi-editor-transport">
+              <label class="midi-editor-transport-label" for="midi-editor-audition-progress" title="也可拖动卷帘上方的时间刻度定位">试听进度</label>
+              <input id="midi-editor-audition-progress" type="range" min="0" max="0" step="any" value="0" aria-label="试听进度，可拖动定位，滚轮按一拍微调" disabled>
+              <output class="midi-editor-audition-time" id="midi-editor-audition-time" for="midi-editor-audition-progress">00:00.000 / 00:00.000</output>
+              <span class="midi-editor-current-notes" id="midi-editor-current-notes" role="status" aria-live="polite">当前音符 —</span>
+            </div>
+            <div class="midi-editor-footer"><span id="midi-editor-help">空白处单击新增 · 拖动音符移动 · 拖动右边缘缩短/拉长 · Space 试听/停止 · ←/→ 移动画面 · Shift+←/→ 试听快退/快进 5 秒 · Alt+←/→ 快速移动画面 · Delete 删除 · Ctrl+Z 撤销</span><span id="midi-editor-status" role="status" aria-live="polite">等待载入音符</span></div>
+          </section>
+      </section>
+      <!-- PAGE: LIBRARY -->
+      <section id="page-library" class="page-container active">
+        <div class="lib-header-bar">
+          <div class="lib-filters">
+            <button class="btn lib-filter-btn active" data-filter="all">📁 全部 <span id="count-all">(0)</span></button>
+            <button class="btn lib-filter-btn" data-filter="keyboard">⌨️ 键盘谱 <span id="count-keyboard">(0)</span></button>
+            <button class="btn lib-filter-btn" data-filter="piano">🎹 Piano <span id="count-piano">(0)</span></button>
+            <button class="btn lib-filter-btn" data-filter="guitar">🎸 吉他谱 <span id="count-guitar">(0)</span></button>
+          </div>
+
+          <div style="display: flex; gap: 12px; align-items: center;">
+            <div class="lib-search-box">
+              <span class="search-icon">🔍</span>
+              <input type="text" class="input-text" id="lib-search-input" placeholder="搜索歌曲名称...">
+            </div>
+            <button class="btn" id="btn-seed-builtin" title="重新载入或恢复内置谱库 (吉他/键盘谱分类)">
+              <span>🎼</span> 内置曲谱
+            </button>
+            <button class="btn btn-primary" id="btn-open-import">
+              <span>📥</span> 导入 MIDI
+            </button>
+          </div>
+        </div>
+
+        <div class="glass-card lib-table-card">
+          <div class="table-wrapper">
+            <table class="lib-table">
+              <thead>
+                <tr>
+                  <th style="width: 118px;">乐器</th>
+                  <th>歌曲名称</th>
+                  <th style="width: 90px;">时长</th>
+                  <th style="width: 95px;">音符数</th>
+                  <th style="width: 80px;">移调</th>
+                  <th style="width: 155px;">添加时间</th>
+                </tr>
+              </thead>
+              <tbody id="lib-tbody">
+                <!-- Injected via library.js -->
+              </tbody>
+            </table>
+          </div>
+
+          <div class="lib-actions-bar">
+            <div style="display: flex; gap: 10px;">
+              <button class="btn btn-primary" id="btn-play-selected">▶ 播放选中曲目</button>
+              <button class="btn" id="btn-edit-selected" disabled>♫ 编辑 MIDI</button>
+              <button class="btn" id="btn-generate-game-chart" disabled>🎸 生成游戏吉他谱</button>
+              <button class="btn" id="btn-reconvert-selected">🔄 重新转换</button>
+              <button class="btn" id="btn-rename-selected">✏️ 重命名</button>
+              <button class="btn btn-danger" id="btn-delete-selected">🗑️ 删除曲目</button>
+            </div>
+            <div class="lib-recommended-submit">
+              <label for="lib-submission-uploader">投稿者
+                <input class="input-text" id="lib-submission-uploader" maxlength="80" autocomplete="nickname" placeholder="填写后自动记住">
+              </label>
+              <button class="btn btn-primary" id="btn-submit-selected-recommended" disabled>⬆ 投稿选中曲目</button>
+              <span id="lib-submission-status" role="status" aria-live="polite">投稿难度默认为 1 级</span>
+            </div>
+            <div style="font-size: 12px; color: var(--muted);">
+              💡 提示：双击任意曲目行可快速载入至下方播放坞
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PAGE: GUITAR PRO CONVERSION (kept separate from MIDI library) -->
+      <section id="page-gtp" class="page-container">
+        <header class="gtp-page-header">
+          <div class="gtp-brand-mark" aria-hidden="true">♬</div>
+          <div>
+            <div class="eyebrow">GUITAR PRO</div>
+            <h2>GTP转换</h2>
+            <p>将 Guitar Pro 谱面转换为适合目标乐器的演奏曲目。</p>
+          </div>
+        </header>
+
+        <div class="gtp-layout">
+          <section class="glass-card gtp-convert-card" aria-label="GTP 转换设置">
+            <div class="gtp-card-heading"><span class="gtp-step">01</span><div><h3>选择 Guitar Pro 文件</h3><p>支持 .gp3、.gp4、.gp5、.gpx 和 .gp</p></div></div>
+            <div class="gtp-dropzone" id="gtp-dropzone" role="button" tabindex="0" aria-label="选择或拖入 Guitar Pro 文件">
+              <div class="gtp-drop-icon">↑</div>
+              <div class="gtp-drop-copy"><strong id="gtp-file-name">拖入文件，或点击浏览</strong><span id="gtp-file-hint">Guitar Pro 文件 · .gp3 / .gp4 / .gp5 / .gpx / .gp</span></div>
+              <button class="btn btn-primary" type="button" id="gtp-pick-file">浏览文件</button>
+            </div>
+            <div class="gtp-status" id="gtp-status" role="status" aria-live="polite">请选择一个 GTP 文件以解析谱面。</div>
+
+            <div class="gtp-options" id="gtp-options" hidden>
+              <div class="gtp-section-heading"><div><span class="gtp-step">02</span><h3>转换选项</h3></div><span id="gtp-track-summary" class="gtp-muted"></span></div>
+              <div class="gtp-track-panel">
+                <div class="gtp-track-head"><strong>选择音轨</strong><div><button class="gtp-text-btn" id="gtp-select-all" type="button">全选</button><button class="gtp-text-btn" id="gtp-select-none" type="button">清空</button></div></div>
+                <div id="gtp-track-list" class="gtp-track-list"></div>
+              </div>
+              <div class="gtp-control-grid">
+                <label class="gtp-control"><span>来源内容</span><select class="input-text" id="gtp-selection"><option value="fullScore">完整谱面</option><option value="melody">主旋律</option></select></label>
+                <label class="gtp-control"><span>目标乐器</span><select class="input-text" id="gtp-target"><option value="keyboard36">键盘 36 键</option><option value="piano">游戏钢琴</option><option value="guitar">吉他</option></select></label>
+                <div class="gtp-control"><span>移调（半音）</span><div class="stepper gtp-transpose"><button class="stepper-btn" id="gtp-transpose-minus" type="button" aria-label="降低一个半音">−</button><output class="stepper-val" id="gtp-transpose-value">+0</output><button class="stepper-btn" id="gtp-transpose-plus" type="button" aria-label="升高一个半音">+</button></div></div>
+              </div>
+              <div class="gtp-convert-footer"><span>转换结果会保存在独立的 GTP 列表中。</span><button class="btn btn-primary" id="gtp-convert" type="button" disabled>转换 GTP</button></div>
+            </div>
+          </section>
+
+          <section class="glass-card gtp-results-card" aria-label="已转换的 GTP 曲目">
+            <div class="gtp-results-heading"><div><div class="gtp-eyebrow">CONVERTED SCORES</div><h3>已转换曲目</h3></div><button class="btn btn-sm" id="gtp-refresh" type="button" aria-label="刷新 GTP 列表">↻ 刷新</button></div>
+            <div id="gtp-list-state" class="gtp-list-state">正在读取 GTP 曲目…</div>
+            <div id="gtp-list" class="gtp-list" hidden></div>
+          </section>
+        </div>
+      </section>
+
+      <!-- PAGE: RECOMMENDED SCORES -->
+      <section id="page-recommended-scores" class="page-container">
+        <div class="lib-header-bar recommended-header-bar">
+          <div>
+            <div style="font-size: 18px; font-weight: 750;">推荐谱</div>
+            <div id="recommended-status" class="recommended-status">按需下载，下载后会保存在本地</div>
+          </div>
+          <div class="recommended-controls">
+            <select class="input-text recommended-level-filter" id="recommended-level-filter" aria-label="按难度等级筛选">
+              <option value="">全部难度</option>
+            </select>
+            <select class="input-text recommended-level-filter" id="recommended-instrument-filter" aria-label="按乐器分类筛选">
+              <option value="">全部乐器</option>
+              <option value="keyboard">键盘谱</option>
+              <option value="piano">Piano</option>
+              <option value="guitar">吉他谱</option>
+            </select>
+            <div class="lib-search-box">
+              <span class="search-icon">🔍</span>
+              <input type="text" class="input-text" id="recommended-search" placeholder="搜索曲名或作者...">
+            </div>
+            <button class="btn" id="btn-recommended-refresh">↻ 刷新列表</button>
+            <button class="btn btn-primary" id="btn-recommended-submit">＋ 投稿推荐谱</button>
+          </div>
+        </div>
+        <div class="glass-card lib-table-card recommended-table-card">
+          <div class="table-wrapper">
+            <table class="lib-table recommended-table">
+              <thead>
+                <tr>
+                  <th style="width: 86px;">难度</th>
+                  <th>歌曲名称</th>
+                  <th>作者 / 来源</th>
+                  <th style="width: 100px;">乐器</th>
+                  <th style="width: 120px;">文件大小</th>
+                  <th style="width: 260px; text-align: right;">操作</th>
+                </tr>
+              </thead>
+              <tbody id="recommended-tbody">
+                <tr><td colspan="6" class="recommended-empty">正在连接推荐谱服务…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+  <div class="modal-backdrop" id="modal-recommended-submit">
+    <div class="modal-dialog" style="max-width:560px;">
+      <div class="modal-header">
+        <div class="modal-title">投稿推荐谱</div>
+        <button class="btn btn-icon btn-close-modal" aria-label="关闭">✕</button>
+      </div>
+      <form id="recommended-submit-form">
+        <div class="modal-body" style="display:grid; gap:12px;">
+          <label>曲名<input class="input-text" id="recommended-submit-title" maxlength="160" required></label>
+          <label>上传者名称<input class="input-text" id="recommended-submit-uploader" maxlength="80" required></label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <label>曲谱用途<select class="input-text" id="recommended-submit-instrument"><option value="keyboard">键盘谱 / 36 键脚本</option><option value="piano">Piano / 游戏钢琴</option><option value="guitar">吉他谱 / 音游或吉他脚本</option></select></label>
+            <label>等级<select class="input-text" id="recommended-submit-level" required></select></label>
+          </div>
+          <label>难度说明（选填）<input class="input-text" id="recommended-submit-label" maxlength="40" placeholder="例如：Expert / 困难"></label>
+          <div><button class="btn" type="button" id="btn-recommended-pick-midi">选择 MIDI 文件</button><span id="recommended-submit-file" class="recommended-subtitle" style="margin-left:10px;">尚未选择</span></div>
+          <div class="recommended-subtitle">投稿通过审核后会显示在推荐谱列表中。仅支持不超过 20 MiB 的 MIDI 文件。</div>
+        </div>
+        <div class="modal-footer"><button class="btn btn-close-modal" type="button">取消</button><button class="btn btn-primary" id="btn-recommended-submit-confirm" type="submit">提交审核</button></div>
+      </form>
+    </div>
+  </div>
+
+      <!-- PAGE: PERFORMANCE -->
+      <section id="page-performance" class="page-container">
+        <div class="glass-card">
+          <div class="card-header">
+            <div class="card-title">🎯 演奏乐器与模式配置</div>
+            <span class="badge info"><span class="badge-dot"></span><span>实时生效</span></span>
+          </div>
+          <div class="select-card-grid mode-select-grid">
+            <div class="select-card" id="mode-card-piano" data-mode="0">
+              <div class="select-card-icon">🎹</div>
+              <div class="select-card-info">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <h3>键盘脚本模式（36 键）</h3>
+                  <button class="btn btn-sm" id="btn-perf-preset-editor" title="打开36按键映射与预设编辑器" style="padding: 2px 8px; font-size: 11px;">⚙️ 键位预设</button>
+                </div>
+                <p>MIDI 52~87 (E3~D#6) 全音域覆盖，多音符和弦并发，动态智能延音防吞音，支持自定义按键映射与独立声卡试听。</p>
+              </div>
+            </div>
+            <div class="select-card active" id="mode-card-fret" data-mode="1">
+              <div class="select-card-icon">🎸</div>
+              <div class="select-card-info">
+                <h3>吉他品格独奏模式 (Mode 1)</h3>
+                <p>0~24 品连续半音覆盖，全自动 R/T 翻页与 Viterbi 最优指法分配，杜绝断音。</p>
+                <label class="mode-inline-control"><input type="checkbox" id="chk-avoid-strum-mode1"><span>规避扫弦滚奏</span></label>
+              </div>
+            </div>
+            <div class="select-card" id="mode-card-chord" data-mode="2">
+              <div class="select-card-icon">🎶</div>
+              <div class="select-card-info">
+                <h3>吉他 24 和弦伴奏模式 (Mode 2)</h3>
+                <p>支持 4 页 24 和弦轮盘，智能识别下扫弦、上扫弦、柱式和弦与单音拨弦。</p>
+              </div>
+            </div>
+            <div class="select-card" id="mode-card-hybrid" data-mode="3">
+              <div class="select-card-icon">🎸</div>
+              <div class="select-card-info">
+                <h3>吉他完整混合演奏 (Mode 3)</h3>
+                <p>自动保护主旋律，在品格与和弦之间切换；支持自动配速、和弦内拨弦与扫弦。</p>
+                <label class="mode-inline-control"><input type="checkbox" id="chk-avoid-strum-mode3"><span>规避扫弦滚奏</span></label>
+              </div>
+            </div>
+            <div class="select-card" id="mode-card-drums" data-mode="4">
+              <div class="select-card-icon">🥁</div>
+              <div class="select-card-info">
+                <h3>四键鼓点模式</h3>
+                <p id="drum-mode-description">D 底鼓 · F 军鼓 · J 轻镲 · K 重镲；自动识别 MIDI 鼓轨，也能从旋律生成节奏。</p>
+                <p class="drum-mode-howto">使用方式：曲库里任选歌曲，点击开始即可。</p>
+                <label class="drum-layout-control" for="drum-key-layout">游戏按键
+                  <select class="input-text" id="drum-key-layout" aria-label="鼓点模式游戏按键">
+                    <option value="DFJK">D / F / J / K</option>
+                    <option value="ASQuote">A / S / ; / '</option>
+                  </select>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-card">
+          <div class="card-header">
+            <div class="card-title">🎛️ 移调与防吞音时序调优</div>
+          </div>
+          <div class="perf-tuning-grid">
+            <div>
+              <label class="form-label">整曲音调偏移 (半音)</label>
+              <div class="stepper">
+                <button class="stepper-btn" id="btn-perf-trans-minus">-</button>
+                <div class="stepper-val" id="perf-val-trans">+0</div>
+                <button class="stepper-btn" id="btn-perf-trans-plus">+</button>
+              </div>
+            </div>
+            <div>
+              <label class="form-label">智能动态延音 (Sustain)</label>
+              <label style="display: flex; align-items: center; gap: 10px; margin-top: 8px; cursor: pointer;">
+                <input type="checkbox" id="chk-perf-sustain" checked>
+                <span style="font-size: 13px; color: var(--text-secondary);">自动延音（密集点按防吞音，尾音充分延音）</span>
+              </label>
+            </div>
+          </div>
+          <div style="margin-top: 18px; display: flex; gap: 12px;">
+            <button class="btn" id="btn-perf-compat-test">🎯 运行 SendInput 游戏按键兼容性测试</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- PAGE: GAME PIANO PLAYER -->
+      <section id="page-game-piano" class="page-container">
+        <header class="piano-page-header">
+          <div class="piano-brand-mark" aria-hidden="true">♬</div>
+          <div class="piano-heading-copy">
+            <div class="eyebrow">GAME PIANO</div>
+            <h2>游戏钢琴</h2>
+            <p>从本地曲库双击钢琴曲目即可载入，也可在此调整速度并播放。</p>
+          </div>
+          <label class="piano-ready-chip piano-layout-picker" for="piano-layout"><i></i><span>键盘布局</span>
+            <select id="piano-layout" aria-label="钢琴键盘布局">
+              <option value="TwelveKeyChromatic">36 键钢琴</option>
+              <option value="SevenKeyScale">21 键钢琴</option>
+            </select>
+          </label>
+        </header>
+
+        <section class="piano-studio-card glass-card" aria-label="演奏曲目">
+          <div class="piano-song-control">
+            <div class="piano-control-label"><span class="piano-control-icon">♫</span><span>演奏曲目</span></div>
+            <div class="piano-song-picker-row">
+              <select class="input-text piano-song-select" id="piano-song-select" aria-label="选择 Piano 曲目">
+                <option value="">正在读取曲库…</option>
+              </select>
+                <button class="btn btn-primary piano-upload-button" type="button" id="btn-piano-import-midi"><span aria-hidden="true">＋</span> 上传 MIDI</button>
+            </div>
+              <div class="piano-song-caption"><span id="piano-song-caption">MIDI 会自动转换为游戏钢琴键位</span><button class="piano-recommended-link" type="button" id="btn-piano-recommended">浏览推荐谱</button></div>
+          </div>
+        </section>
+
+        <section class="piano-keyboard-panel glass-card" aria-label="钢琴键盘">
+          <div class="piano-keyboard-heading">
+            <div class="piano-control-label"><span class="piano-control-icon">♬</span><span>钢琴键位</span></div>
+            <span class="piano-keyboard-range" id="piano-keyboard-range">36 键 · C3 — B5</span>
+          </div>
+          <div class="piano-keyboard" id="piano-keyboard" role="img" aria-label="钢琴键盘"></div>
+          <div class="piano-keyboard-caption">弹奏时，当前按下的琴键会变灰并轻轻下压</div>
+        </section>
+
+        <section class="piano-speed-panel glass-card" aria-label="演奏速度">
+          <div class="piano-speed-heading">
+            <div class="piano-control-label"><span class="piano-control-icon">◷</span><label for="piano-speed">演奏速度</label></div>
+            <output class="piano-speed-value" id="piano-speed-value" for="piano-speed">100%</output>
+          </div>
+          <input class="piano-speed-slider" id="piano-speed" type="range" min="25" max="200" step="5" value="100" aria-label="演奏速度">
+          <div class="piano-speed-scale"><span>慢一点</span><span>原速</span><span>快一点</span></div>
+        </section>
+
+        <div class="piano-note-line" id="piano-note-line"><span class="piano-sparkle">✦</span><span>钢琴谱自动编译 · 音域自动适配 · 和弦自动处理</span></div>
+      </section>
+
+      <!-- PAGE: GUITAR SIMULATOR -->
+      <section id="page-simulator" class="page-container">
+        <!-- 🎸 吉他弹奏精简指引条 (紧凑布局，节约界面空间) -->
+        <div class="glass-card guitar-hint-banner" id="guitar-hint-banner">
+          <div class="hint-bar-left">
+            <span class="guitar-hint-icon" id="guitar-hint-icon">🎸</span>
+            <span class="guitar-hint-title" id="guitar-hint-title">吉他弹奏指引</span>
+            <span class="badge success sm" id="guitar-hint-mode-badge" style="font-size: 11px; padding: 2px 8px;">
+              <span class="badge-dot"></span>
+              <span id="guitar-hint-mode-text">品格独奏</span>
+            </span>
+          </div>
+
+          <div class="hint-bar-center">
+            <span class="badge info sm" id="guitar-hint-page-badge" style="cursor: pointer; font-size: 11px; padding: 2px 8px;" title="点击对齐下方模拟器轮盘至该起始页">
+              <span class="badge-dot"></span>
+              <span id="guitar-hint-page-text">起始页: P1</span>
+            </span>
+            <div class="hint-key-pill" id="guitar-hint-first-note-box">
+              <span class="hint-key-label">🎯 起弹:</span>
+              <span class="hint-key-val" id="guitar-hint-first-note">载入吉他曲目后自动计算最佳起始指法</span>
+            </div>
+            <span id="guitar-hint-sub" style="display: none;"></span>
+            <span id="guitar-hint-keys" style="display: none;"></span>
+          </div>
+
+          <div class="hint-bar-right">
+            <span class="hint-f8-badge" id="hint-global-hotkey" title="切回游戏前台窗口后按 F8 开始演奏">
+              <span class="ingame-keycap" id="hint-global-hotkey-label">F8</span> 开弹 / 暂停
+            </span>
+          </div>
+        </div>
+
+        <div class="sim-container">
+          <!-- Left: 1:1 In-game Authentic Wheel Stage -->
+          <div class="glass-card sim-stage-card">
+            <div class="sim-stage-top">
+              <span style="font-weight: 700; font-size: 14.5px;">🎮 游戏实机轮盘指板联动</span>
+              <!-- Top quick mode/page bar -->
+              <div class="sim-page-selector" id="sim-page-selector"></div>
+            </div>
+
+            <!-- In-game Authentic Wheel Display Box -->
+            <div class="wheel-stage-viewport">
+              <div class="wheel-display-box">
+                <!-- Outer 6 circular sectors + GUITAR bezel (Rendered via SVG in guitar-simulator.js) -->
+                <div class="wheel-sectors-circle" id="wheel-sectors-box"></div>
+                <!-- Center circular soundhole + 6 horizontal pink strings with 1~6 center badges -->
+                <div class="guitar-strings-box" id="guitar-strings-box"></div>
+              </div>
+
+              <!-- In-game Authentic Bottom Pagination: [R] 上一页  ○ ◎ ○ ○  下一页 [T] -->
+              <div class="ingame-wheel-pager">
+                <button class="ingame-page-nav" id="sim-btn-prev-page" title="快捷键: R">
+                  <span class="ingame-keycap">R</span>
+                  <span>上一页</span>
+                </button>
+                <div class="ingame-page-dots" id="sim-ingame-dots"></div>
+                <button class="ingame-page-nav" id="sim-btn-next-page" title="快捷键: T">
+                  <span>下一页</span>
+                  <span class="ingame-keycap">T</span>
+                </button>
+              </div>
+
+              <!-- In-game Bottom-Right HUD Overlay -->
+              <div class="ingame-hud-overlay">
+                <div class="hud-row"><span class="hud-label">当前模式:</span> <span class="hud-val" id="sim-hud-mode">和弦</span></div>
+                <div class="hud-row"><span class="hud-label">当前音色:</span> <span class="hud-val">清音</span></div>
+                <div class="hud-row"><span class="hud-label">音色切换</span> <span class="ingame-keycap sm">V</span></div>
+                <div class="hud-row" id="sim-hud-toggle-mode" style="cursor: pointer;" title="点击或按 Z 切换独奏/和弦模式">
+                  <span class="hud-label">模式切换</span> <span class="ingame-keycap sm">Z</span>
+                </div>
+                <div class="hud-row" id="sim-hud-strum-up"><span class="hud-label">上扫音</span> <span class="hud-mouse">🖱️左</span></div>
+                <div class="hud-row" id="sim-hud-strum-down"><span class="hud-label">下扫音</span> <span class="hud-mouse">🖱️右</span></div>
+              </div>
+            </div>
+
+            <div style="font-size: 12px; color: var(--muted); text-align: center;">
+              模拟弦序与游戏一致：1 弦最低音、6 弦最高音，对应按键 1~6（可点击或按键预览）
+            </div>
+          </div>
+
+          <!-- Right: Real-time Info & Diagnostics -->
+          <div style="display: flex; flex-direction: column; gap: 16px;">
+            <div class="glass-card">
+              <div class="card-title" style="margin-bottom: 12px;">⚡ 实时演奏动作监视</div>
+              <div style="padding: 13px 15px; background: var(--surface-2); border: 1px solid var(--border); box-shadow: var(--liquid-rim); border-radius: var(--radius-sm); font-size: 13px; font-weight: 700; color: var(--accent);" id="sim-current-hint">
+                静止就绪
+              </div>
+            </div>
+
+            <div class="glass-card">
+              <div class="card-title" style="margin-bottom: 12px;">📖 键位对应说明</div>
+              <div style="display: flex; flex-direction: column; gap: 8px; font-size: 12.5px; color: var(--text-secondary);">
+                <div>• 游戏 1 弦 (最低音 E2) 对应 <b>游戏按键 1</b></div>
+                <div>• 游戏 2 弦 (A2) 对应 <b>游戏按键 2</b></div>
+                <div>• 游戏 3 弦 (D3) 对应 <b>游戏按键 3</b></div>
+                <div>• 游戏 4 弦 (G3) 对应 <b>游戏按键 4</b></div>
+                <div>• 游戏 5 弦 (B3) 对应 <b>游戏按键 5</b></div>
+                <div>• 游戏 6 弦 (最高音 E4) 对应 <b>游戏按键 6</b></div>
+                <div>• 翻页按键：<b>R 键 (上一页) / T 键 (下一页)</b></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PAGE: CALIBRATION -->
+      <section id="page-calibration" class="page-container">
+        <div class="calib-grid">
+          <div class="glass-card">
+            <div class="card-header">
+              <div class="card-title">🖥️ 游戏窗口绑定与前台监测</div>
+              <span class="badge" id="calib-win-badge"><span class="badge-dot"></span><span class="badge-text">未绑定</span></span>
+            </div>
+            <div style="font-size: 13.5px; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px;" id="calib-win-title">未绑定目标窗口</div>
+            <div style="font-size: 12px; color: var(--muted); margin-bottom: 16px;" id="calib-win-detail">请在游戏处于前台时，本软件将自动锁定其客户区进行绝对坐标映射。</div>
+            <div style="display: flex; gap: 10px;">
+              <button class="btn btn-primary" id="btn-calib-rebind">🎯 重新捕获游戏前台窗口</button>
+              <button class="btn" id="btn-calib-open-dialog">⚙️ 打开高级轮盘校准窗口</button>
+            </div>
+            <div class="calib-auto-guitar">
+              <p>仅在使用吉他模式时操作。请在异环中打开六块吉他界面，再运行自动识别。</p>
+              <button class="btn btn-primary" id="btn-calib-auto-guitar">🎸 异环自动绑定并校准吉他</button>
+              <div id="calib-auto-status" class="calib-auto-status" aria-live="polite"></div>
+              <div id="calib-auto-preview" class="calib-auto-preview" hidden>
+                <div id="calib-auto-image-meta" class="calib-auto-image-meta"></div>
+                <div class="calib-auto-preview-frame">
+                  <img id="calib-auto-image" alt="异环吉他界面校准预览" />
+                  <div id="calib-auto-markers" class="calib-auto-markers"></div>
+                </div>
+                <div id="calib-auto-coordinates" class="calib-auto-coordinates" aria-live="polite"></div>
+                <div class="calib-auto-preview-actions">
+                  <span id="calib-auto-notice"></span>
+                  <button class="btn btn-sm" id="btn-calib-auto-reset">恢复自动识别位置</button>
+                  <button class="btn btn-primary btn-sm" id="btn-calib-auto-confirm">确认并保存</button>
+                  <button class="btn btn-sm" id="btn-calib-auto-cancel">取消</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass-card">
+            <div class="card-header">
+              <div class="card-title">🖱️ 扫弦安全区与归一化测试</div>
+            </div>
+            <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">
+              扫弦安全点相对坐标: <span id="calib-strum-coords" style="font-family: monospace; font-weight: 700; color: var(--accent);">X: 0.1500, Y: 0.5000</span>
+            </div>
+            <div style="display: flex; gap: 10px;">
+              <button class="btn" id="btn-calib-test-strum">测试扫弦点击</button>
+              <button class="btn btn-danger" id="btn-calib-reset">重置为官方默认坐标</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-card">
+          <div class="card-header">
+            <div class="card-title">🎯 轮盘六大槽位坐标 (1080P/2K/4K 自动缩放)</div>
+          </div>
+          <div id="calib-coordinate-profile" class="calib-coordinate-profile"></div>
+          <div class="calib-slots-list" id="calib-slots-list">
+            <!-- Injected via calibration.js -->
+          </div>
+        </div>
+      </section>
+
+      <!-- PAGE: TUTORIAL -->
+      <section id="page-tutorial" class="page-container">
+        <div class="tutorial-wizard">
+          <div class="tutorial-step-pills" id="tutorial-pills-box"></div>
+
+          <div class="glass-card tutorial-card">
+            <h2 id="tut-title">欢迎使用 NTE-GUITAR</h2>
+            <p id="tut-desc">加载中...</p>
+            <div style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.65; margin-bottom: 18px;" id="tut-advice"></div>
+            <div class="safety-card" id="tut-safety">安全提示</div>
+
+            <div style="display: flex; justify-content: space-between; margin-top: 26px;">
+              <button class="btn" id="btn-tut-prev">← 上一步</button>
+              <button class="btn btn-primary" id="btn-tut-next">下一步 →</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PAGE: SETTINGS -->
+      <section id="page-settings" class="page-container settings-page">
+        <div class="glass-card settings-group-card">
+          <div class="settings-group-heading">
+            <div><div class="card-title">🎸 演奏行为</div><p>调整吉他演奏时的编排和输入方式。</p></div>
+            <span class="badge info"><span class="badge-dot"></span><span>影响吉他模式</span></span>
+          </div>
+          <div class="settings-option-list">
+            <label class="settings-option">
+              <input type="checkbox" id="chk-avoid-strum">
+              <span><strong>规避扫弦滚奏</strong><small>品格模式折叠快速扫弦簇；混合模式减少鼠标扫弦和伴奏多音爆发。</small></span>
+            </label>
+            <label class="settings-option">
+              <input type="checkbox" id="chk-arranged-accompaniment">
+              <span><strong>智能改编伴奏（和弦模式）</strong><small>按节拍编排伴奏；遇到轮盘无法覆盖的和弦时，尝试切换品格补位。</small></span>
+            </label>
+            <label class="settings-option">
+              <input type="checkbox" id="chk-virtual-gamepad">
+              <span><strong>使用虚拟手柄输入</strong><small>使用 ViGEmBus 模拟手柄输入。播放发送输入后，游戏可能切换到手柄提示与操作模式。</small></span>
+            </label>
+            <div class="settings-option-list">
+              <button class="btn btn-secondary btn-sm" id="btn-repair-virtual-gamepad" type="button">修复模拟手柄</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-card settings-group-card settings-appearance-card">
+          <div class="settings-group-heading">
+            <div><div class="card-title">🎨 外观与壁纸</div><p>选择你喜欢的界面主题与背景。</p></div>
+          </div>
+          <div class="theme-cards-grid">
+            <div class="select-card active" id="theme-card-dark" data-theme-select="dark">
+              <div class="theme-preview-swatch dark-swatch">🌙</div>
+              <div class="select-card-info"><h3>黑曜石液态</h3><p>深色基底搭配紫蓝流光，适合夜间使用。</p></div>
+            </div>
+            <div class="select-card" id="theme-card-light" data-theme-select="light">
+              <div class="theme-preview-swatch light-swatch">☀️</div>
+              <div class="select-card-info"><h3>水晶亮白</h3><p>清透明亮的浅色界面，清爽易读。</p></div>
+            </div>
+          </div>
+          <div class="settings-option-list settings-appearance-options">
+            <label class="settings-option settings-option-inline">
+              <input type="checkbox" id="chk-disable-glass-effect">
+              <span><strong>关闭毛玻璃效果</strong><small>降低背景模糊效果。</small></span>
+            </label>
+            <label class="settings-option settings-option-inline">
+              <input type="checkbox" id="chk-always-on-top">
+              <span><strong>程序置顶</strong><small>点击界面时尽量不打断游戏视角与前台焦点。</small></span>
+            </label>
+            <button class="btn" id="btn-settings-reset-size" title="将窗口一键恢复至推荐分辨率 1080 × 700 并居中显示">📐 恢复推荐窗口大小（1080 × 700）</button>
+          </div>
+          <div class="settings-subsection">
+            <div class="settings-subsection-heading"><strong>🖼️ 界面壁纸</strong><span>仅保存在本机</span></div>
+            <p class="wallpaper-description">选择图片或视频作为主界面背景。素材只保存在本机，不会上传。</p>
+            <div class="wallpaper-settings-row">
+              <div class="wallpaper-current" id="wallpaper-current">使用默认背景</div>
+              <div class="wallpaper-actions">
+                <button class="btn btn-primary" id="btn-wallpaper-select">选择图片或视频</button>
+                <button class="btn" id="btn-wallpaper-preview" disabled>预览并调整</button>
+                <button class="btn" id="btn-wallpaper-clear" disabled>清除壁纸</button>
+              </div>
+            </div>
+            <div class="wallpaper-warning" id="wallpaper-warning" role="status" hidden></div>
+          </div>
+        </div>
+
+        <div class="glass-card settings-group-card">
+          <div class="settings-group-heading">
+            <div><div class="card-title">⌨️ 快捷键与半自动翻页</div><p>设置演奏控制与谱面翻页按键。</p></div>
+            <span class="badge info"><span class="badge-dot"></span><span>点击后按下新按键</span></span>
+          </div>
+          <div class="settings-shortcuts-grid">
+            <div class="settings-shortcut-item">
+              <label class="form-label">开始 / 暂停热键</label>
+              <div class="settings-shortcut-control"><span class="stepper-val" id="label-global-hotkey">F8</span><button class="btn" data-key-capture="globalHotkeyVk">设置热键</button></div>
+              <small>默认 F8；可设置字母键或功能键，F9 留给悬浮窗。</small>
+            </div>
+            <div class="settings-shortcut-item">
+              <label class="form-label">半自动上一页键</label>
+              <div class="settings-shortcut-control"><span class="stepper-val" id="label-semi-page-prev">R</span><button class="btn" data-key-capture="semiAutoPagePrevVk">设置按键</button></div>
+              <small>谱面需要退回前一页时由半自动模式发送。</small>
+            </div>
+            <div class="settings-shortcut-item">
+              <label class="form-label">半自动下一页键</label>
+              <div class="settings-shortcut-control"><span class="stepper-val" id="label-semi-page-next">T</span><button class="btn" data-key-capture="semiAutoPageNextVk">设置按键</button></div>
+              <small>谱面需要前进到下一页时由半自动模式发送。</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-card settings-group-card settings-timing-card">
+          <details class="settings-advanced">
+            <summary><span><strong>⏱️ 高级时序参数</strong><small>微调按键时序与切屏安全，默认收起</small></span><span class="settings-advanced-toggle"><span class="settings-advanced-open-label">展开</span><span class="settings-advanced-close-label">收起</span></span></summary>
+            <div class="settings-advanced-content">
+              <div class="settings-advanced-toolbar"><span>调整后会立即保存；如遇到输入不稳定，可恢复推荐值。</span><button class="btn btn-sm" id="btn-reset-timing" title="恢复官方推荐的稳定时序参数">🔄 恢复推荐时序</button></div>
+              <div class="timing-steppers-grid">
+                <div><label class="form-label">开弹倒计时预热（毫秒）</label><div class="stepper"><button class="stepper-btn" id="btn-preroll-minus">-</button><div class="stepper-val" id="val-preroll">1500</div><button class="stepper-btn" id="btn-preroll-plus">+</button></div><small>吉他模式至少倒计时 3 秒，最后 2 秒自动校准界面；钢琴/鼓模式按此设置。</small></div>
+                <div><label class="form-label">连续翻页间隔（毫秒）</label><div class="stepper"><button class="stepper-btn" id="btn-pagegap-minus">-</button><div class="stepper-val" id="val-pagegap">25</div><button class="stepper-btn" id="btn-pagegap-plus">+</button></div><small>连续 R/T 按键释放间隙，防止漏翻页。</small></div>
+                <div><label class="form-label">按键最小保持（毫秒）</label><div class="stepper"><button class="stepper-btn" id="btn-minhold-minus">-</button><div class="stepper-val" id="val-minhold">4</div><button class="stepper-btn" id="btn-minhold-plus">+</button></div><small id="minhold-hint">单键/琴弦最小按压时长（5–100 毫秒）。</small></div>
+                <div><label class="form-label">选槽稳定沉降（毫秒）</label><div class="stepper"><button class="stepper-btn" id="btn-settle-minus">-</button><div class="stepper-val" id="val-settle">75</div><button class="stepper-btn" id="btn-settle-plus">+</button></div><small>轮盘选槽等待时间，减少键盘输入抢先。</small></div>
+                <div><label class="form-label">同键释放间隙（毫秒）</label><div class="stepper"><button class="stepper-btn" id="btn-relgap-minus">-</button><div class="stepper-val" id="val-relgap">2</div><button class="stepper-btn" id="btn-relgap-plus">+</button></div><small>同键连续敲击之间的物理释放间隔。</small></div>
+                <div><label class="form-label">密集音符脉冲（毫秒）</label><div class="stepper"><button class="stepper-btn" id="btn-pulse-minus">-</button><div class="stepper-val" id="val-pulse">25</div><button class="stepper-btn" id="btn-pulse-plus">+</button></div><small>极速连奏或密集音符的点按脉冲宽度。</small></div>
+              </div>
+            </div>
+          </details>
+        </div>
+
+        <div class="glass-card settings-group-card">
+          <div class="settings-group-heading"><div><div class="card-title">🛡️ 安全与诊断</div><p>保护演奏状态，并在需要时导出诊断信息。</p></div></div>
+          <div class="settings-safety-actions">
+            <label class="settings-option settings-option-inline"><input type="checkbox" id="chk-autostop-focus" checked><span><strong>切出游戏时自动急停</strong><small>窗口失焦时安全释放按键并暂停演奏。</small></span></label>
+            <button class="btn btn-primary" id="btn-export-diagnostics">📦 一键导出诊断日志包</button>
+          </div>
+        </div>
+
+        <div class="glass-card settings-group-card settings-support-card">
+          <div class="settings-support-copy"><span class="settings-support-icon" aria-hidden="true">♡</span><div><div class="card-title">如果它曾陪你弹出喜欢的旋律</div><p>你的使用、反馈和分享，都是我继续把 NET-GUITAR 做得更好的动力。若你愿意，也可以请作者喝杯咖啡；每一份心意，我都会认真记在心里。</p><small>赞赏完全随心。无论是否赞赏，都谢谢你愿意使用这个小工具。</small></div></div>
+          <button class="btn btn-primary settings-support-button" id="btn-author-appreciation">♡ 赞赏作者</button>
+        </div>
+      </section>
+
+      <div class="modal-backdrop" id="modal-author-appreciation" role="dialog" aria-modal="true" aria-labelledby="author-appreciation-title">
+        <div class="modal-dialog author-appreciation-dialog">
+          <div class="modal-header"><div class="modal-title" id="author-appreciation-title">谢谢你愿意支持 NET-GUITAR</div><button class="btn btn-icon btn-close-modal" aria-label="关闭">✕</button></div>
+          <div class="modal-body author-appreciation-body">
+            <div class="author-appreciation-message"><span class="author-appreciation-sparkle" aria-hidden="true">✦</span><p>如果这个小工具曾让练习少一点折腾，或帮你把一段喜欢的旋律弹出来，那已经是我继续打磨它很大的动力。</p><p>每一次使用、反馈与分享，都让我知道这些时间没有白费。如果你愿意给予一份支持，我会由衷感谢；即使不赞赏，你的陪伴和鼓励也同样珍贵。</p><strong>谢谢你支持独立开发，也谢谢你把 NET-GUITAR 放进自己的音乐生活里。</strong></div>
+            <img class="author-appreciation-image" src="./assets/author-appreciation.png" alt="寻枫梧的赞赏码，感谢大家支持">
+          </div>
+          <div class="modal-footer"><button class="btn btn-primary btn-close-modal">收下这份心意</button></div>
+        </div>
+      </div>
+      <!-- 🎹 Piano roll above the player dock -->
+      <section class="midi-roll-panel" id="midi-roll-panel" aria-label="钢琴卷帘">
+        <div class="midi-roll-header">
+          <div class="midi-roll-title">
+            <span class="badge-dot" id="midi-roll-live-dot"></span>
+            <span>🎹 钢琴卷帘</span>
+            <span class="midi-roll-tag" id="midi-roll-mode-tag">等待载入</span>
+          </div>
+          <div class="midi-roll-stats">
+            <span class="midi-roll-clock" id="midi-roll-time">00:00.000</span>
+            <button class="btn btn-sm midi-roll-edit" id="btn-midi-roll-edit" type="button" title="在独立 MIDI 编辑页面打开当前曲目">编辑 MIDI</button>
+            <button class="btn btn-sm midi-roll-expand" id="btn-midi-roll-expand" type="button" aria-label="放大钢琴卷帘" aria-expanded="false" aria-controls="midi-roll-canvas">放大</button>
+            <button class="btn btn-sm midi-roll-collapse" id="btn-midi-roll-collapse" type="button" aria-label="收起钢琴卷帘" aria-expanded="true" aria-controls="midi-roll-panel" title="收起钢琴卷帘">收起</button>
+            <button class="btn btn-sm midi-roll-fullscreen" id="btn-midi-roll-fullscreen" type="button" aria-label="钢琴卷帘全屏显示" aria-pressed="false">全屏</button>
+          </div>
+        </div>
+        <div class="midi-roll-viewport">
+          <canvas id="midi-roll-canvas"></canvas>
+        </div>
+      </section>
+        <div class="midi-roll-restore-wrap" id="midi-roll-restore" hidden>
+          <button class="btn btn-sm midi-roll-restore" id="btn-midi-roll-restore" type="button">展开钢琴卷帘</button>
+        </div>
+    </main>
+
+    <!-- 3. Bottom Floating Liquid Glass Player Dock -->
+    <footer class="player-dock">
+      <div class="dock-left">
+        <button class="dock-icon-disc dock-cover-control" id="dock-cover-control" type="button" aria-label="点击锁定头像" aria-pressed="false" title="点击锁定头像">
+          <img id="dock-cover" class="dock-cover" alt="" aria-hidden="true">
+        </button>
+        <div class="dock-song-meta">
+          <div class="dock-song-title" id="dock-song-title">未选择曲目</div>
+          <div class="dock-song-sub" id="dock-song-meta">请在曲库选择歌曲开始演奏</div>
+        </div>
+      </div>
+
+      <div class="dock-center">
+        <div class="dock-controls">
+          <button class="btn btn-primary btn-hero" id="dock-btn-play" title="播放 / 暂停 (F8)">▶</button>
+          <button class="btn btn-hero" id="dock-btn-pause" style="display: none;" title="暂停">⏸</button>
+          <button class="btn btn-icon" id="dock-btn-stop" title="停止">⏹</button>
+          <button class="btn" id="dock-btn-audition" title="开始电脑监听">🎧 电脑监听</button>
+          <button class="btn dock-play-mode" id="dock-btn-play-mode" type="button" title="切换播放模式" aria-label="播放模式：顺序播放">🔁 顺序播放</button>
+
+          <!-- 新增：变速演奏选择器 -->
+          <div class="speed-pill-box" title="调整演奏倍速（仅暂停/停止时可改）">
+            <span class="speed-pill-label">⚡ 倍速</span>
+            <select id="dock-speed-select" class="speed-select" aria-label="演奏倍速">
+              <option value="auto">自动配速</option>
+              <option value="0.5">0.50× 慢练</option>
+              <option value="0.6">0.60×</option>
+              <option value="0.7">0.70×</option>
+              <option value="0.8">0.80×</option>
+              <option value="0.9">0.90×</option>
+              <option value="1" selected>1.00× 原速</option>
+              <option value="1.1">1.10×</option>
+              <option value="1.2">1.20× 疾速</option>
+              <option value="1.25">1.25× 极限</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="dock-progress-row">
+          <span class="dock-time" id="dock-time-cur">00:00</span>
+          <input type="range" class="flat-slider" id="dock-slider" min="0" max="100" value="0">
+          <span class="dock-time" id="dock-time-tot">00:00</span>
+        </div>
+      </div>
+
+      <div class="dock-right">
+        <div class="dock-badge-row">
+          <span class="badge info" id="dock-status-badge">
+            <span class="badge-dot"></span>
+            <span class="badge-text">等待选曲</span>
+          </span>
+        </div>
+        <div class="dock-hotkey-hint">
+          <span id="footer-global-hotkey">⚡ 全局热键: F8 播放 / 暂停 / 急停</span>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- 4. Modern In-app Modal: Import MIDI Workshop -->
+  <div class="modal-backdrop" id="modal-import">
+    <div class="modal-dialog modal-wide">
+      <div class="modal-header">
+      <div class="modal-title">📥 导入 MIDI 到本地曲库</div>
+        <button class="btn btn-icon btn-close-modal">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div>
+          <label class="form-label">MIDI 乐谱文件</label>
+          <div class="file-picker-card" id="btn-browse-midi" style="cursor: pointer;">
+            <div class="file-picker-header">
+              <span style="font-weight: 700; color: var(--text);">📂 点击从文件夹中选择 MIDI 乐谱文件</span>
+              <button class="btn btn-sm btn-primary" type="button">浏览选择...</button>
+            </div>
+            <div class="file-info-row" id="import-file-meta-row" style="display: none;">
+              <span class="file-info-tag" id="import-info-filename">🎵 未选择</span>
+              <span class="file-info-tag" id="import-info-notes">⚡ 0 音符</span>
+              <span class="file-info-tag" id="import-info-duration">⏱️ 00:00</span>
+              <span class="file-info-tag" id="import-info-tracks">🎹 0 轨</span>
+            </div>
+          </div>
+          <input type="hidden" id="import-input-path">
+          <div style="font-size: 11.5px; color: var(--muted); margin-top: 5px;" id="import-info-box">支持 .mid / .midi 格式文件</div>
+        </div>
+
+        <div>
+          <label class="form-label">歌曲曲库显示名称</label>
+          <input type="text" class="input-text" id="import-song-name" placeholder="请输入在曲库中的显示名称">
+        </div>
+
+        <!-- 轨道列表、音符数量、音域、音轨选择与单轨试听 -->
+        <div id="import-tracks-section" class="import-conversion-only">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <label class="form-label" style="margin-bottom: 0;">🎼 音轨列表与选择 (展示各轨音符数、音域与试听)</label>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn btn-sm" type="button" id="btn-import-tracks-all">全选</button>
+              <button class="btn btn-sm" type="button" id="btn-import-tracks-none">全清</button>
+              <button class="btn btn-sm" type="button" id="btn-import-tracks-melody">智能保留旋律轨</button>
+              <button class="btn btn-sm" type="button" id="btn-import-audition-tracks">🎧 试听已选音轨</button>
+              <button class="btn btn-sm btn-danger" type="button" id="btn-import-stop-audition" style="display: none;">⏹ 停止</button>
+            </div>
+          </div>
+          <div class="tracks-table-container">
+            <table class="tracks-table">
+              <thead>
+                <tr>
+                  <th style="width: 38px; text-align: center;"><input type="checkbox" id="chk-import-select-all" checked></th>
+                  <th style="width: 48px;">轨号</th>
+                  <th>音轨名称 / GM 乐器</th>
+                  <th style="width: 88px;">音符数量</th>
+                  <th style="width: 155px;">音域范围 (最低~最高)</th>
+                  <th style="width: 76px; text-align: right;">单轨试听</th>
+                </tr>
+              </thead>
+              <tbody id="import-tracks-tbody">
+                <tr><td colspan="6" style="text-align: center; color: var(--muted); padding: 18px;">请先选择 MIDI 文件以解析轨道信息</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="import-instrument-picker">
+          <label class="form-label">🎯 保存为哪类曲谱</label>
+          <div class="select-card-grid">
+            <div class="select-card active" id="import-card-guitar">
+              <div class="select-card-icon">🎸</div>
+              <div class="select-card-info">
+                <h3>吉他专属模式 ★ (推荐)</h3>
+                <p>0~24 品单音指弹 + 4 页 24 和弦，全音域保真，自动提炼最优主旋律。</p>
+              </div>
+            </div>
+            <div class="select-card" id="import-card-keyboard">
+              <div class="select-card-icon">🎹</div>
+              <div class="select-card-info">
+                <h3>键盘谱 / 36 键脚本</h3>
+                <p>用于键盘模拟输入脚本，将 MIDI 转为 36 键谱。</p>
+              </div>
+            </div>
+            <div class="select-card" id="import-card-game-piano">
+              <div class="select-card-icon">🎼</div>
+              <div class="select-card-info">
+                <h3>Piano / 游戏钢琴</h3>
+                <p>保存原始 MIDI 音符，不转换、不移调，供游戏钢琴模式选曲。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-two-col-grid import-conversion-only">
+          <div>
+            <label class="form-label">移调调节 (半音)</label>
+            <div class="stepper">
+              <button class="stepper-btn" id="import-btn-transpose-minus">-</button>
+              <div class="stepper-val" id="import-val-transpose">+0</div>
+              <button class="stepper-btn" id="import-btn-transpose-plus">+</button>
+            </div>
+          </div>
+
+          <div>
+            <label class="form-label">超范围高/低音处理</label>
+            <div class="chip-group" id="import-range-chips">
+              <div class="chip range-chip active" data-range="OctaveFold">自动八度折叠 ★</div>
+              <div class="chip range-chip" data-range="Discard">严格丢弃/过滤</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="import-conversion-only">
+          <label class="form-label">声部提取与主旋律策略</label>
+          <div class="chip-group" id="import-melody-chips">
+            <div class="chip melody-chip active" data-strategy="ContinuousMelody">连续最优 ★ (推荐)</div>
+            <div class="chip melody-chip" data-strategy="HighestNote">最高音 (主唱线)</div>
+            <div class="chip melody-chip" data-strategy="TrackPriority">音轨优先</div>
+            <div class="chip melody-chip" data-strategy="AutoLeadFusion">多轨融合 (AutoLead)</div>
+            <div class="chip melody-chip" data-strategy="FullSong">完整全曲保留</div>
+            <div class="chip melody-chip" data-strategy="ManualTracks">人工勾选音轨</div>
+          </div>
+        </div>
+
+        <!-- 提取结果实时对比面板 -->
+        <div class="comparison-box import-conversion-only" id="import-comparison-box" style="display: none;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="font-size: 13px; font-weight: 700; color: var(--text);">
+              📊 提取结果与原曲对比 (Extraction vs Source Comparison)
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn btn-sm btn-primary" type="button" id="btn-import-audition-result">🎧 试听提取结果</button>
+              <button class="btn btn-sm btn-danger" type="button" id="btn-import-stop-result-audition" style="display: none;">⏹ 停止试听</button>
+            </div>
+          </div>
+          <div class="comparison-grid">
+            <div class="comparison-stat-card">
+              <div class="comparison-stat-label">原始音符 / 音域</div>
+              <div class="comparison-stat-val" id="import-cmp-orig">-</div>
+            </div>
+            <div class="comparison-stat-card">
+              <div class="comparison-stat-label">提取保留 / 缩减</div>
+              <div class="comparison-stat-val highlight" id="import-cmp-ext">-</div>
+            </div>
+            <div class="comparison-stat-card">
+              <div class="comparison-stat-label">提取音域 / 置信评分</div>
+              <div class="comparison-stat-val" id="import-cmp-range">-</div>
+            </div>
+            <div class="comparison-stat-card">
+              <div class="comparison-stat-label">乐器可奏覆盖率</div>
+              <div class="comparison-stat-val success" id="import-cmp-fit">-</div>
+            </div>
+          </div>
+          <div style="font-size: 11.5px; color: var(--text-secondary); margin-top: 8px;" id="import-cmp-summary">
+            正在生成提取与演奏对比报告...
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-close-modal">取消</button>
+        <button class="btn btn-primary" id="btn-confirm-import">✨ 保存至曲库并准备演奏</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Modern In-app Modal: Reconvert Song Workshop -->
+  <div class="modal-backdrop" id="modal-reconvert">
+    <div class="modal-dialog modal-wide">
+      <div class="modal-header">
+        <div class="modal-title">🔄 重新转换曲目多轨配置</div>
+        <button class="btn btn-icon btn-close-modal">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div>
+          <label class="form-label">当前正在重新配置的曲目</label>
+          <div style="font-weight: 700; font-size: 14.5px; color: var(--accent);" id="reconvert-song-title">曲目名称</div>
+          <div style="font-size: 12px; color: var(--muted); margin-top: 4px;" id="reconvert-song-info">源文件信息</div>
+        </div>
+
+        <!-- 轨道列表、音符数量、音域、音轨选择与单轨试听 -->
+        <div id="reconvert-tracks-section">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <label class="form-label" style="margin-bottom: 0;">🎼 音轨列表与选择 (展示各轨音符数、音域与试听)</label>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn btn-sm" type="button" id="btn-reconvert-tracks-all">全选</button>
+              <button class="btn btn-sm" type="button" id="btn-reconvert-tracks-none">全清</button>
+              <button class="btn btn-sm" type="button" id="btn-reconvert-tracks-melody">智能保留旋律轨</button>
+              <button class="btn btn-sm" type="button" id="btn-reconvert-audition-tracks">🎧 试听已选音轨</button>
+              <button class="btn btn-sm btn-danger" type="button" id="btn-reconvert-stop-audition" style="display: none;">⏹ 停止</button>
+            </div>
+          </div>
+          <div class="tracks-table-container">
+            <table class="tracks-table">
+              <thead>
+                <tr>
+                  <th style="width: 38px; text-align: center;"><input type="checkbox" id="chk-reconvert-select-all" checked></th>
+                  <th style="width: 48px;">轨号</th>
+                  <th>音轨名称 / GM 乐器</th>
+                  <th style="width: 88px;">音符数量</th>
+                  <th style="width: 155px;">音域范围 (最低~最高)</th>
+                  <th style="width: 76px; text-align: right;">单轨试听</th>
+                </tr>
+              </thead>
+              <tbody id="reconvert-tracks-tbody">
+                <tr><td colspan="6" style="text-align: center; color: var(--muted); padding: 18px;">加载音轨中...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div>
+          <label class="form-label">🎯 目标演奏乐器模式</label>
+          <div class="select-card-grid">
+            <div class="select-card" id="reconvert-card-guitar">
+              <div class="select-card-icon">🎸</div>
+              <div class="select-card-info">
+                <h3>吉他专属模式 (0~24品+24和弦)</h3>
+                <p>0~24 品单音指弹 + 4 页 24 和弦，全音域保真。</p>
+              </div>
+            </div>
+            <div class="select-card" id="reconvert-card-piano">
+              <div class="select-card-icon">🎹</div>
+              <div class="select-card-info">
+                <h3>键盘谱 / 36 键脚本</h3>
+                <p>将 MIDI 转换为键盘模拟输入脚本使用的 36 键曲谱。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-two-col-grid">
+          <div>
+            <label class="form-label">移调调节 (半音)</label>
+            <div class="stepper">
+              <button class="stepper-btn" id="reconvert-btn-transpose-minus">-</button>
+              <div class="stepper-val" id="reconvert-val-transpose">+0</div>
+              <button class="stepper-btn" id="reconvert-btn-transpose-plus">+</button>
+            </div>
+          </div>
+
+          <div>
+            <label class="form-label">超范围高/低音处理</label>
+            <div class="chip-group" id="reconvert-range-chips">
+              <div class="chip range-chip active" data-range="OctaveFold">自动八度折叠 ★</div>
+              <div class="chip range-chip" data-range="Discard">严格丢弃/过滤</div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="form-label">声部提取与主旋律策略</label>
+          <div class="chip-group" id="reconvert-melody-chips">
+            <div class="chip melody-chip active" data-strategy="ContinuousMelody">连续最优 ★</div>
+            <div class="chip melody-chip" data-strategy="HighestNote">最高音 (主唱线)</div>
+            <div class="chip melody-chip" data-strategy="TrackPriority">音轨优先</div>
+            <div class="chip melody-chip" data-strategy="AutoLeadFusion">多轨融合 (AutoLead)</div>
+            <div class="chip melody-chip" data-strategy="FullSong">完整全曲保留</div>
+            <div class="chip melody-chip" data-strategy="ManualTracks">人工勾选音轨</div>
+          </div>
+        </div>
+
+        <!-- 重新转换结果实时对比面板 -->
+        <div class="comparison-box" id="reconvert-comparison-box" style="display: none;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="font-size: 13px; font-weight: 700; color: var(--text);">
+              📊 提取结果与原曲对比 (Extraction vs Source Comparison)
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn btn-sm btn-primary" type="button" id="btn-reconvert-audition-result">🎧 试听提取结果</button>
+              <button class="btn btn-sm btn-danger" type="button" id="btn-reconvert-stop-result-audition" style="display: none;">⏹ 停止试听</button>
+            </div>
+          </div>
+          <div class="comparison-grid">
+            <div class="comparison-stat-card">
+              <div class="comparison-stat-label">原始音符 / 音域</div>
+              <div class="comparison-stat-val" id="reconvert-cmp-orig">-</div>
+            </div>
+            <div class="comparison-stat-card">
+              <div class="comparison-stat-label">提取保留 / 缩减</div>
+              <div class="comparison-stat-val highlight" id="reconvert-cmp-ext">-</div>
+            </div>
+            <div class="comparison-stat-card">
+              <div class="comparison-stat-label">提取音域 / 置信评分</div>
+              <div class="comparison-stat-val" id="reconvert-cmp-range">-</div>
+            </div>
+            <div class="comparison-stat-card">
+              <div class="comparison-stat-label">乐器可奏覆盖率</div>
+              <div class="comparison-stat-val success" id="reconvert-cmp-fit">-</div>
+            </div>
+          </div>
+          <div style="font-size: 11.5px; color: var(--text-secondary); margin-top: 8px;" id="reconvert-cmp-summary">
+            正在生成提取与演奏对比报告...
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-close-modal">取消</button>
+        <button class="btn btn-primary" id="btn-confirm-reconvert">✨ 确认重新转换并保存</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="modal-game-chart-actions">
+    <div class="modal-dialog" style="max-width: 520px;">
+      <div class="modal-header">
+        <div class="modal-title">🎸 游戏吉他谱已生成</div>
+        <button class="btn btn-icon btn-close-modal" aria-label="关闭">✕</button>
+      </div>
+      <div class="modal-body">
+        <p id="game-chart-result" style="margin: 0 0 12px; color: var(--text-secondary);"></p>
+        <p style="margin: 0; color: var(--muted); font-size: 12px;">选择如何使用这份谱面。执行模式之后仍可在悬浮窗顶部切换；PDF 需要时再单独导出。</p>
+      </div>
+      <div class="modal-footer" style="display: flex; flex-wrap: wrap; gap: 8px;">
+        <button class="btn btn-close-modal">稍后</button>
+        <button class="btn" id="btn-chart-export-pdf">导出 PDF</button>
+        <button class="btn" id="btn-chart-open-manual">全手动打开</button>
+        <button class="btn btn-primary" id="btn-chart-open-semi">半自动打开</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="modal-announcement-prompt">
+    <div class="modal-dialog" style="max-width:500px;">
+      <div class="modal-header">
+        <div class="modal-title">📢 发现新版本</div>
+        <button class="btn btn-icon btn-close-modal" aria-label="关闭">✕</button>
+      </div>
+      <div class="modal-body">
+        <strong id="announcement-prompt-title"></strong>
+        <p id="announcement-prompt-summary" style="color:var(--text-secondary); margin:10px 0 0;"></p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-close-modal" id="btn-announcement-later">稍后</button>
+        <button class="btn btn-primary" id="btn-announcement-details">查看公告和下载信息</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="modal-announcement-detail">
+    <div class="modal-dialog" style="max-width:650px;">
+      <div class="modal-header">
+        <div class="modal-title" id="announcement-detail-title">公告</div>
+        <button class="btn btn-icon btn-close-modal" aria-label="关闭">✕</button>
+      </div>
+      <div class="modal-body">
+        <div id="announcement-detail-version" class="badge info" style="margin-bottom:12px;"></div>
+        <div id="announcement-detail-content" style="white-space:pre-wrap; user-select:text; line-height:1.7; color:var(--text-secondary);"></div>
+        <div id="announcement-download-row" style="margin-top:16px; display:none;">
+          <label class="form-label" for="announcement-download-url">下载地址</label>
+          <textarea class="input-text" id="announcement-download-url" rows="2" readonly style="width:100%; resize:vertical; user-select:text;"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer" style="display:flex; flex-wrap:wrap; gap:8px;">
+        <button class="btn btn-close-modal">关闭</button>
+        <button class="btn" id="btn-copy-announcement-content">复制公告</button>
+        <button class="btn" id="btn-copy-announcement-url" style="display:none;">复制下载地址</button>
+        <button class="btn btn-primary" id="btn-open-announcement-url" style="display:none;">前往下载</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="wallpaper-preview-dialog" id="wallpaper-preview-dialog" role="dialog" aria-modal="true" aria-labelledby="wallpaper-preview-title" hidden>
+    <div class="wallpaper-preview-panel">
+      <div class="wallpaper-preview-heading">
+        <div><h3 id="wallpaper-preview-title">预览与调整</h3><p>拖动画面调整取景，缩放后可细调位置。</p></div>
+        <button class="btn btn-sm" id="btn-wallpaper-cancel-top" aria-label="关闭预览">✕</button>
+      </div>
+      <div class="wallpaper-preview-viewport" id="wallpaper-preview-viewport" tabindex="0" aria-label="拖动以调整壁纸取景">
+        <div class="wallpaper-preview-scene">
+          <div class="wallpaper-preview-rail"></div>
+          <div class="wallpaper-preview-content"><span></span><span></span><span></span></div>
+          <div class="wallpaper-preview-dock"></div>
+        </div>
+        <img id="wallpaper-preview-image" alt="壁纸预览">
+        <video id="wallpaper-preview-video" muted loop playsinline></video>
+        <div class="wallpaper-preview-hint">拖动预览画面调整位置</div>
+      </div>
+      <label class="wallpaper-zoom-control" for="wallpaper-zoom">
+        <span>缩放</span><input id="wallpaper-zoom" type="range" min="1" max="3" step="0.01" value="1"><output id="wallpaper-zoom-value">100%</output>
+      </label>
+      <div class="wallpaper-preview-actions">
+        <button class="btn" id="btn-wallpaper-cancel">取消</button>
+        <button class="btn btn-primary" id="btn-wallpaper-apply">应用壁纸</button>
+      </div>
+    </div>
+  </div>
+
+  <aside id="cuda-download-background-status" class="cuda-download-background-status" role="status" aria-live="polite" hidden>
+    <div class="cuda-download-background-heading"><strong id="cuda-download-background-title">CUDA 推理下载</strong><span id="cuda-download-background-phase">准备中</span></div>
+    <p id="cuda-download-background-message">正在准备下载…</p>
+    <div id="cuda-download-background-bar" class="transcription-progress" role="progressbar" aria-label="CUDA 推理环境下载进度" aria-valuemin="0" aria-valuemax="100" aria-valuetext="正在准备" data-indeterminate="true"><span id="cuda-download-background-fill"></span></div>
+    <div class="cuda-download-background-footer"><span id="cuda-download-background-state">后台下载可继续</span><strong id="cuda-download-background-percent">准备中</strong></div>
+  </aside>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <script type="module" src="js/dropdown-menus.js"></script>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
+

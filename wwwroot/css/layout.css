@@ -1,0 +1,812 @@
+/* wwwroot/css/layout.css */
+/* ==========================================================================
+   LIQUID GLASS FLOATING WORKSPACE LAYOUT
+   ========================================================================== */
+
+#app {
+  position: relative;
+  display: grid;
+  grid-template-columns: 216px 1fr;
+  grid-template-rows: minmax(0, 1fr) 86px;
+  gap: 12px;
+  padding: 12px;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  z-index: 1;
+}
+
+#wallpaper-layer {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  z-index: 0;
+  pointer-events: none;
+}
+
+#wallpaper-layer img,
+#wallpaper-layer video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transform-origin: center;
+  will-change: transform;
+}
+
+#wallpaper-layer[hidden] { display: none; }
+html.has-wallpaper body { background-image: none; }
+html.has-wallpaper #app::before,
+html.has-wallpaper #app::after { opacity: .22; }
+html.no-glass *,
+html.no-glass *::before,
+html.no-glass *::after {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Dynamic Ambient Liquid Orbs Behind Glass Panels */
+#app::before,
+#app::after {
+  content: "";
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(75px);
+  pointer-events: none;
+  z-index: -1;
+  animation: liquidFloat 18s ease-in-out infinite alternate;
+}
+
+#app::before {
+  width: 460px;
+  height: 460px;
+  top: -110px;
+  left: -80px;
+  background: var(--orb-1);
+}
+
+#app::after {
+  width: 520px;
+  height: 520px;
+  bottom: -140px;
+  right: -90px;
+  background: var(--orb-2);
+  animation-delay: -9s;
+}
+
+@keyframes liquidFloat {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(45px, 28px) scale(1.08);
+  }
+  100% {
+    transform: translate(-25px, 42px) scale(0.95);
+  }
+}
+
+/* ==================== 1. LEFT NAVIGATION RAIL (Liquid Dock) ==================== */
+.nav-rail {
+  grid-column: 1;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  background: var(--rail-glass);
+  backdrop-filter: var(--liquid-filter);
+  -webkit-backdrop-filter: var(--liquid-filter);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--liquid-rim), var(--shadow-sm);
+  padding: 18px 14px;
+  gap: 10px;
+  z-index: 10;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Specular top sheen on nav rail */
+.nav-rail::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 12%;
+  right: 12%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.65), transparent);
+  pointer-events: none;
+}
+
+.brand-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 8px 10px 8px;
+  margin-bottom: 2px;
+  border-bottom: 1px solid var(--border);
+}
+
+.brand-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+  background: var(--accent-grad);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  box-shadow: 
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.55),
+    0 6px 18px var(--accent-glow);
+  flex-shrink: 0;
+  overflow: hidden;
+  padding: 2px;
+}
+
+.brand-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 11px;
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.brand-text h1 {
+  font-size: 14.5px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text);
+}
+
+.brand-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: var(--radius-pill);
+  background: var(--accent-grad);
+  color: #fff;
+  letter-spacing: 0.4px;
+  box-shadow: 0 2px 8px var(--accent-glow);
+}
+
+.nav-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.nav-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 13.5px;
+  font-weight: 500;
+  border: 1px solid transparent;
+  will-change: transform, background, border-color;
+  transition: 
+    background 150ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 150ms cubic-bezier(0.22, 1, 0.36, 1),
+    color 150ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 150ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 150ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.nav-item:hover {
+  background: var(--surface-hover);
+  border-color: var(--border);
+  box-shadow: var(--liquid-rim);
+  color: var(--text);
+  transform: translateX(3px);
+}
+
+.nav-item:active {
+  transform: translateX(3px) scale(0.98);
+}
+
+.nav-item.active {
+  background: var(--surface-active);
+  border-color: var(--border-glow);
+  color: var(--text);
+  font-weight: 650;
+  box-shadow: var(--liquid-rim-active), 0 6px 20px -4px var(--accent-glow);
+}
+
+.nav-item.active::before {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 24%;
+  bottom: 24%;
+  width: 3.5px;
+  border-radius: 99px;
+  background: var(--accent-grad);
+  box-shadow: 0 0 10px var(--accent);
+}
+
+.nav-item .icon {
+  font-size: 16px;
+  width: 22px;
+  text-align: center;
+  transition: transform 0.25s ease;
+}
+
+.nav-item:hover .icon,
+.nav-item.active .icon {
+  transform: scale(1.12);
+}
+
+.nav-bottom-status {
+  padding: 11px 13px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  box-shadow: var(--liquid-rim);
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+/* ==================== 2. MAIN CONTENT STAGE ==================== */
+.main-stage {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  position: relative;
+  background: var(--surface);
+  backdrop-filter: var(--liquid-filter);
+  -webkit-backdrop-filter: var(--liquid-filter);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--liquid-rim), var(--shadow-sm);
+}
+
+.stage-header {
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-2);
+  flex-shrink: 0;
+  /* Support WebView2 native window dragging if host enables it */
+  -webkit-app-region: drag;
+}
+
+.stage-header button,
+.stage-header .theme-switch-pill {
+  -webkit-app-region: no-drag;
+}
+
+.stage-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  letter-spacing: 0.2px;
+}
+
+.stage-title::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent-grad);
+  box-shadow: 0 0 10px var(--accent);
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Theme Switcher Capsule inside Header */
+.theme-switch-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 13px;
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--liquid-rim);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 600;
+  transition: var(--transition);
+}
+
+.theme-switch-btn:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-glow);
+  box-shadow: var(--liquid-rim-hover), 0 4px 14px var(--accent-glow);
+  transform: translateY(-1px);
+}
+
+.theme-switch-btn:active {
+  transform: translateY(0) scale(0.97);
+}
+
+.theme-switch-btn[aria-pressed="true"] {
+  background: rgba(139, 92, 246, 0.16);
+  border-color: var(--accent);
+  color: var(--accent-light, #a78bfa);
+  box-shadow: 0 0 14px var(--accent-glow), var(--liquid-rim-hover);
+}
+
+.page-container {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior-y: contain;
+  padding: 20px 24px;
+  display: none;
+  min-width: 0;
+}
+
+.page-container.active {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.page-container.is-entering {
+  animation: stageSmoothEnter 165ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  will-change: transform, opacity;
+}
+
+@keyframes stageSmoothEnter {
+  from {
+    opacity: 0.65;
+    transform: translate3d(0, 5px, 0) scale(0.996);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-item,
+  .page-container.is-entering {
+    animation-duration: 1ms !important;
+    transition-duration: 1ms !important;
+  }
+}
+
+/* ==================== 3. BOTTOM FLOATING LIQUID PLAYER DOCK ==================== */
+.player-dock {
+  grid-column: 1 / span 2;
+  grid-row: 2;
+  display: grid;
+  grid-template-columns: minmax(180px, 280px) minmax(220px, 1fr) minmax(140px, auto);
+  align-items: center;
+  gap: 16px;
+  background: var(--surface-glass);
+  backdrop-filter: var(--liquid-filter);
+  -webkit-backdrop-filter: var(--liquid-filter);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: 0 20px;
+  box-shadow: var(--liquid-rim), var(--shadow);
+  z-index: 20;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Specular top edge reflection on player dock */
+.player-dock::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 8%;
+  right: 8%;
+  height: 1.5px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.75), transparent);
+  pointer-events: none;
+}
+
+.dock-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.dock-icon-disc {
+  width: 50px;
+  height: 50px;
+  border-radius: 15px;
+  background: var(--surface-hover);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--liquid-rim), 0 6px 16px var(--accent-glow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  color: var(--accent);
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.dock-cover {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+}
+
+.dock-cover-control {
+  padding: 0;
+  cursor: pointer;
+}
+
+.dock-cover-control:hover {
+  border-color: var(--accent);
+}
+
+.dock-cover-control:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.dock-cover-control.is-locked::after {
+  content: "🔒";
+  position: absolute;
+  right: 1px;
+  bottom: 1px;
+  padding: 1px;
+  border-radius: 5px;
+  background: var(--surface-hover);
+  font-size: 12px;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.dock-song-meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 3px;
+}
+
+.dock-song-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dock-song-sub {
+  font-size: 11.5px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dock-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  max-width: 620px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.dock-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dock-play-mode {
+  white-space: nowrap;
+  padding-inline: 10px;
+}
+
+.dock-progress-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dock-time {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  width: 44px;
+  text-align: center;
+}
+
+.dock-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+}
+
+.dock-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dock-hotkey-hint {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  opacity: 0.9;
+}
+
+/* ==================== RESPONSIVE WORKSPACE BREAKPOINTS ==================== */
+@media (max-width: 1100px) {
+  #app {
+    grid-template-columns: 180px 1fr;
+    grid-template-rows: minmax(0, 1fr) 80px;
+    gap: 10px;
+    padding: 10px;
+  }
+
+  .nav-rail {
+    padding: 14px 10px;
+    gap: 8px;
+  }
+
+  .brand-card {
+    gap: 8px;
+    padding: 2px 4px 8px 4px;
+  }
+
+  .brand-icon {
+    width: 34px;
+    height: 34px;
+    font-size: 18px;
+  }
+
+  .brand-text h1 {
+    font-size: 13px;
+  }
+
+  .brand-sub {
+    font-size: 10px;
+  }
+
+  .nav-item {
+    padding: 9px 10px;
+    font-size: 12.5px;
+    gap: 9px;
+  }
+
+  .stage-header {
+    height: 50px;
+    padding: 0 16px;
+  }
+
+  .page-container {
+    padding: 14px 16px;
+    gap: 14px;
+  }
+
+  .player-dock {
+    padding: 0 16px;
+    grid-template-columns: minmax(160px, 240px) 1fr auto;
+    gap: 12px;
+  }
+
+  .dock-icon-disc {
+    width: 42px;
+    height: 42px;
+    font-size: 18px;
+  }
+
+  .dock-song-title {
+    font-size: 13px;
+  }
+
+  .dock-song-sub {
+    font-size: 11px;
+  }
+
+  .btn-hero {
+    width: 40px;
+    height: 40px;
+    font-size: 15px;
+  }
+}
+
+/* Compact Width (< 880px): Space-saving Icon Rail & Streamlined Dock */
+@media (max-width: 880px) {
+  #app {
+    grid-template-columns: 66px 1fr;
+    grid-template-rows: minmax(0, 1fr) 76px;
+    gap: 8px;
+    padding: 8px;
+  }
+
+  .nav-rail {
+    padding: 12px 6px;
+    align-items: center;
+  }
+
+  .brand-card {
+    padding: 0 0 10px 0;
+    justify-content: center;
+    border-bottom: 1px solid var(--border);
+    width: 100%;
+  }
+
+  .brand-text {
+    display: none;
+  }
+
+  .brand-icon {
+    width: 38px;
+    height: 38px;
+  }
+
+  .nav-menu {
+    width: 100%;
+    align-items: center;
+  }
+
+  .nav-item {
+    justify-content: center;
+    padding: 10px 0;
+    width: 48px;
+    border-radius: var(--radius-sm);
+  }
+
+  .nav-item .nav-text {
+    display: none;
+  }
+
+  .nav-item .icon {
+    font-size: 19px;
+    width: auto;
+  }
+
+  .nav-item.active::before {
+    left: 2px;
+    top: 20%;
+    bottom: 20%;
+  }
+
+  .nav-bottom-status {
+    padding: 8px 0;
+    width: 44px;
+    justify-content: center;
+  }
+
+  .nav-bottom-status span:last-child {
+    display: none;
+  }
+
+  .stage-header {
+    height: 46px;
+    padding: 0 12px;
+  }
+
+  .stage-title {
+    font-size: 14px;
+  }
+
+  #theme-toggle-label {
+    display: none;
+  }
+
+  .theme-switch-btn {
+    padding: 5px 8px;
+  }
+
+  .page-container {
+    padding: 10px 12px;
+    gap: 12px;
+  }
+
+  .player-dock {
+    padding: 0 12px;
+    grid-template-columns: minmax(130px, 200px) 1fr auto;
+    gap: 10px;
+  }
+
+  .dock-icon-disc {
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+    border-radius: 10px;
+  }
+
+  .dock-song-sub {
+    display: none;
+  }
+
+  .dock-hotkey-hint {
+    display: none;
+  }
+
+  .dock-time {
+    font-size: 11px;
+    width: 36px;
+  }
+
+  #dock-btn-audition {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+
+  .dock-play-mode {
+    padding: 4px 7px;
+    font-size: 11px;
+  }
+
+  .btn-hero {
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+  }
+}
+
+/* Short Screen Height Adaptation (< 720px) */
+@media (max-height: 720px) {
+  #app {
+    gap: 8px;
+    padding: 8px;
+    grid-template-rows: minmax(0, 1fr) 74px;
+  }
+
+  .stage-header {
+    height: 44px;
+  }
+
+  .nav-rail {
+    padding: 10px 8px;
+    gap: 6px;
+  }
+
+  .nav-menu {
+    gap: 4px;
+  }
+
+  .nav-item {
+    padding: 7px 10px;
+  }
+
+  .page-container {
+    padding: 10px 14px;
+    gap: 10px;
+  }
+}
